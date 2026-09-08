@@ -4,6 +4,10 @@ A single-file, client-side HTML application for reviewing and correcting AI-extr
 
 There is no build step or backend of its own — `extraction-workbench.html` is self-contained and runs entirely in the browser, using CDN-hosted libraries for PDF rendering and OCR.
 
+## Screenshot
+
+![Extraction Workbench sample screenshot](sample.png)
+
 ## What it does
 
 1. **Upload** an image (JPG/PNG) or PDF (first page only) of a document.
