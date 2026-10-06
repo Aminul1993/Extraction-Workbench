@@ -2,7 +2,7 @@
 
 A single-file, client-side HTML application for reviewing and correcting AI-extracted data from scanned documents (invoices, forms, etc.) against a defined schema, before submitting the verified record to a parent application.
 
-There is no build step or backend of its own — `extraction-workbench.html` is self-contained and runs entirely in the browser, using CDN-hosted libraries for PDF rendering and OCR.
+There is no build step or backend of its own — `index.html` is self-contained and runs entirely in the browser, using CDN-hosted libraries for PDF rendering and OCR.
 
 ## Screenshot
 
