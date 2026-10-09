@@ -1,0 +1,38 @@
+{
+  "invoice_no": "",
+  "invoice_date": "",
+  "due_date": "",
+  "tagline": "",
+  "vendor_company_name": "",
+  "vendor_address": "",
+  "vendor_city": "",
+  "vendor_state": "",
+  "vendor_zip_code": "",
+  "vendor_email": "",
+  "project_name": "",
+  "total_services": "",
+  "total_installations": "",
+  "subtotal": "",
+  "tax_percentage": "",
+  "tax_amount": "",
+  "total_amount_due": "",
+  "notes_payment_terms": "",
+  "notes_reference_note": "",
+  "notes_compliance_note": "",
+  "construction_services": {
+    "nested": {
+      "description": "",
+      "sq_ft": "",
+      "price_per_sq_ft": "",
+      "total": ""
+    }
+  },
+  "installations_and_finishing": {
+    "nested": {
+      "description": "",
+      "sq_ft": "",
+      "price_per_sq_ft": "",
+      "total": ""
+    }
+  }
+}

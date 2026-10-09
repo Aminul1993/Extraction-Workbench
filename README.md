@@ -1,33 +1,50 @@
 # Extraction Workbench
 
-A single-file, client-side HTML application for reviewing and correcting AI-extracted data from scanned documents (invoices, forms, etc.) against a defined schema, before submitting the verified record to a parent application.
+A review tool for AI-extracted document data. Upload an invoice or form, check every extracted value against the page, and submit the verified record to the application that opened the workbench.
 
-There is no build step or backend of its own — `index.html` is self-contained and runs entirely in the browser, using CDN-hosted libraries for PDF rendering and OCR.
+The review UI is a single file, `index.html`, with no build step. A small Flask API in [`api/`](api/) serves the page, supplies the reference schema, and runs the AI extraction.
 
 ## Screenshot
 
-![Extraction Workbench sample screenshot](sample.png)
+![Extraction Workbench reviewing invoice_INV-2026-982.pdf](sample.png)
+
+*`invoice_INV-2026-982.pdf` right after extraction: 26 of 29 items confirmed automatically, 3 left to check.*
+
+## Running it
+
+```sh
+cd api
+python -m venv .venv
+.venv/Scripts/activate        # Windows; use .venv/bin/activate elsewhere
+pip install -r requirements.txt
+cp .env.example .env          # set OLLAMA_MODEL and OLLAMA_API_KEY
+python app.py
+```
+
+Then open <http://127.0.0.1:5000/>. To try it, drop in [`invoice_INV-2026-982.pdf`](invoice_INV-2026-982.pdf).
+
+See [`api/README.md`](api/README.md) for the API's endpoints and settings.
 
 ## What it does
 
 1. **Upload** an image (JPG/PNG) or PDF (first page only) of a document.
 2. The page runs **OCR** locally in the browser (Tesseract.js) to read text and locate it on the page.
-3. The file is sent once to a configurable **AI extraction endpoint**, which maps the document's content onto a predefined schema (e.g. invoice number, vendor address, line items).
-4. Each extracted field is shown as a **marker box** overlaid on the document image, color-coded by confidence/status, alongside a **review rail** where the operator can confirm, edit, flag, or skip each value.
-5. Once every field is checked (or the operator chooses to submit early), the resulting JSON record is **posted back to the parent window** (`window.opener`) that launched the workbench.
+3. The file is sent once to the **extraction API** (`POST /extract`). The API converts it to text with MarkItDown, then asks an Ollama model to map that text onto the reference schema (for example invoice number, vendor address, line items).
+4. Each extracted field is shown as a **marker box** on the document image, color-coded by status. Next to it, a **review rail** lets you confirm, edit, flag or skip each value.
+5. When every field is checked (or you submit early), the JSON record is **posted back to the parent window** (`window.opener`) that launched the workbench.
 
 ## Key features
 
-- **Document viewer** — zoom in/out, fit-to-page, and a "close-up" mode that automatically zooms/scrolls to keep the currently focused field centered and readable.
-- **Draggable/resizable markers** — if a box is in the wrong place, drag it over the correct text and click "Re-read box" to re-run OCR on just that region.
-- **Confidence-based status model** for every field/row:
-  - **Confirmed (verified)** — user-confirmed, or high-confidence and located on the page.
-  - **Needs a look (review)** — extracted but low-confidence, unplaced, or manually flagged.
-  - **Not found (missing)** — nothing was extracted.
-- **Review rail** with three views — *To check*, *All*, *Done* — plus a progress bar and running counts in the top bar.
-- **Repeatable line-item groups** (e.g. `construction_services`, `installations_and_finishing`) driven by any schema field that declares a `nested` sub-schema; rows can be added by hand when none were detected.
-- **One-click suggestions** — when the OCR reading of a field's box differs from the AI-extracted value, the raw OCR text is offered as a one-click "use" suggestion.
-- **Keyboard-driven review**: press `?` to toggle the shortcut bar.
+- **Document viewer**: zoom in and out, fit to page or width, and a close-up mode that keeps the focused field centered and readable.
+- **Draggable, resizable markers**: if a box is in the wrong place, drag it over the correct text and click "Re-read box" to run OCR on just that region. "Re-read boxes" in the toolbar does this for every unconfirmed box.
+- **Status model** for every field and row:
+  - **Confirmed**: you confirmed it, or it's high-confidence and located on the page.
+  - **Needs a look**: extracted but low-confidence, not located on the page, or flagged.
+  - **Not found**: nothing was extracted.
+- **Review rail** with three views (*To check*, *All*, *Done*), plus a progress bar and running counts in the top bar.
+- **Repeatable line-item groups** (for example `construction_services` and `installations_and_finishing`) for any schema field that declares a `nested` sub-schema. You can add rows by hand when none were detected.
+- **One-click suggestions**: when the OCR reading of a field's box differs from the extracted value, the OCR text is offered as a one-click replacement.
+- **Keyboard-driven review**: press `?` to see the shortcuts.
 
   | Key | Action |
   |---|---|
@@ -36,61 +53,81 @@ There is no build step or backend of its own — `index.html` is self-contained 
   | `/` | Focus the value input |
   | `F` | Flag the item for later |
   | `S` | Skip the item |
+  | `R` | Re-read the item's box |
 
-- **JSON preview** — "View JSON" / "Copy JSON" in the rail footer show a live, human-readable snapshot of the record (labels, values, status, confidence, bounding boxes).
-- **Reset** — reverts all edits back to the original AI-extracted baseline.
+- **JSON preview**: the "JSON" tab shows a live snapshot of the record, and the rail footer has "Download" and "Copy JSON".
+- **Reset**: "Revert edits" puts every value and box back to the last extraction. "Clear document" starts over.
 
 ## Configuration
 
-Two placeholders near the top of the `<script>` block must be set before deploying:
+The backend settings sit near the top of the `<script>` block in `index.html`:
 
 ```js
-const AI_URL = "<YOUR AI URL>";
+const SCHEMA_URL = "/schema";
+const AI_URL = "/extract";
 ```
-The endpoint that receives the uploaded file (as `multipart/form-data`) and returns a JSON object matching `REFERENCE_SCHEMA`. The page's own query string (e.g. `?serializer=...&form_type=...`) is forwarded to this URL so the backend can resolve the correct schema/serializer.
+
+- **`SCHEMA_URL`**: where the page loads the reference schema from when it starts.
+- **`AI_URL`**: where the uploaded file is sent, as `multipart/form-data`. The page's own query string is forwarded to this URL.
+
+Both are relative because the Flask API serves the page. If you host `index.html` somewhere else, change them to the API's full URLs and add the page's origin to `CORS_ORIGINS` in `api/.env`.
 
 ```js
-window.opener.postMessage({ data: data }, '<YOUR REDIRECT URL>');
+const FORM_TYPE = "{{form_type|escapejs}}";
+const FORM_URL = "{{form_url|escapejs}}";
 ```
-The **target origin** used when posting the final submitted record back to the parent window. Must be set to the exact origin of the launching application (do not use `*` in production).
+
+- **`FORM_URL`**: the target origin used when posting the submitted record back to the parent window. It must be the exact origin of the launching application. Don't use `*` in production.
+- **`FORM_TYPE`**: sent as the message's `type`, so the parent can tell which form the record is for.
+
+Both are still Django template placeholders from when the page was rendered by `pms_api`. When the Flask API serves the page, replace them with literal values.
 
 ### Defining the schema
 
-The extraction target schema is declared once, as `REFERENCE_SCHEMA` in the script:
+The extraction target schema is in [`api/reference_schema.json`](api/reference_schema.json). The page loads it from `GET /schema`, and `POST /extract` maps documents onto the same file, so the two always agree. To use a different file, set `REFERENCE_SCHEMA_FILE` in `api/.env`.
 
-```js
-const REFERENCE_SCHEMA = {
+```json
+{
   "invoice_no": "",
   "invoice_date": "",
   ...
   "construction_services": { "nested": {
     "description": "", "sq_ft": "", "price_per_sq_ft": "", "total": ""
   }}
-};
+}
 ```
 
 - Top-level scalar keys become individual review fields.
-- A key whose value is an object with a `nested` sub-object becomes a **repeatable group** (rendered as multiple rows, each with an "+ Row" button in the queue).
-- Field labels are auto-generated by title-casing the snake_case key (e.g. `vendor_company_name` → "Vendor Company Name").
+- A key whose value is an object with a `nested` sub-object becomes a **repeatable group**. It's shown as multiple rows, with a "+ Row" button in the queue.
+- Field labels come from title-casing the snake_case key (for example `vendor_company_name` becomes "Vendor Company Name").
 
-This schema is expected to mirror the backend serializer/model the extracted data will ultimately be saved to.
+The schema should mirror the backend serializer or model the extracted data is saved to.
 
 ## Integration
 
-This page is designed to be opened as a **popup/child window** from another application:
+This page is designed to be opened as a **popup or child window** from another application:
 
-- On submit, it calls `window.opener.postMessage({ data }, REDIRECT_URL)` with the final record, shaped as `{ field_key: value, ..., group_key: [ {cell_key: value, ...}, ... ] }`.
-- If there is no `window.opener` (e.g. opened directly), the record is logged to the console instead and a notice is shown.
-- The parent application should listen for the `message` event and validate `event.origin` before trusting the payload.
+- On submit, it calls `window.opener.postMessage({ type: FORM_TYPE, data }, FORM_URL)` with the final record. The record is shaped as `{ field_key: value, ..., group_key: [ {cell_key: value, ...}, ... ] }`.
+- If there's no `window.opener` (for example, the page was opened directly), the record is copied to the clipboard instead and a notice is shown.
+- The parent application should listen for the `message` event and check `event.origin` before trusting the payload.
 
-## Dependencies (loaded via CDN)
+## Dependencies
 
-- [pdf.js](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/) — renders the first page of an uploaded PDF to a canvas.
-- [Tesseract.js](https://cdn.jsdelivr.net/npm/tesseract.js/) — in-browser OCR, used both for initial text/line detection and for "Re-read box".
-- Google Fonts: Plus Jakarta Sans (UI) and IBM Plex Mono (data/values).
+Browser (loaded from CDNs):
 
-If Tesseract.js fails to load, the workbench degrades gracefully: it skips OCR-based box placement and, if the AI extraction endpoint is also unreachable, falls back to naive `label: value` line matching against raw OCR text.
+- [pdf.js](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/): renders the first page of an uploaded PDF to a canvas.
+- [Tesseract.js](https://cdn.jsdelivr.net/npm/tesseract.js/): in-browser OCR, used for the initial text and line detection and for "Re-read box".
+- Google Fonts: Plus Jakarta Sans (UI) and IBM Plex Mono (data and values).
+
+API: Flask, MarkItDown and langchain-ollama (see [`api/requirements.txt`](api/requirements.txt)).
+
+## Fallbacks and limits
+
+- **Images:** the API has no OCR, so it can't read text from a JPG or PNG and the extraction request fails. The page then falls back to matching `label: value` lines in the in-browser OCR text. Line items aren't filled in this way; you add them by hand.
+- **Extraction API down:** the page uses the same `label: value` fallback.
+- **Tesseract.js fails to load:** values can't be located on the page, so their boxes start in default positions.
+- **Schema can't be loaded:** the page shows a warning and has no fields to review. This also happens if `index.html` is opened as a local file instead of through the API.
 
 ## Browser support
 
-Requires a modern browser with support for ES modules, `fetch`, `FormData`, Canvas, and the Clipboard API. No server-side rendering or build tooling is involved — just open the HTML file (or serve it statically).
+Requires a modern browser with support for ES modules (including top-level `await`), `fetch`, `FormData`, Canvas, and the Clipboard API.

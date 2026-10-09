@@ -9,355 +9,406 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F4F5F7; --surface:#FFFFFF; --surface-2:#F9FAFB; --desk:#EAECF0;
-  --line:#E4E7EC; --line-2:#D0D5DD;
-  --ink:#101828; --ink-2:#344054; --ink-3:#475467; --ink-4:#667085; --ink-5:#98A2B3;
-  --accent:#2F5FE0; --accent-dark:#2650C4; --accent-soft:#F5F8FF; --accent-line:#C7D7FE;
-  --ok:#067647; --ok-soft:#ECFDF3; --ok-line:#ABEFC6;
-  --warn:#DC6803; --warn-soft:#FFFAEB; --warn-line:#FEDF89; --warn-ink:#B54708;
-  --bad:#D92D20; --bad-soft:#FEF3F2; --bad-line:#FECDCA;
+  --bg:#F5F6F8; --surface:#FFFFFF; --subtle:#F8F9FB; --desk:#EDF0F4;
+  --line:#E6E9EF; --line-2:#D4DAE3;
+  --ink:#0F1728; --ink-2:#334155; --ink-3:#64748B; --ink-4:#94A3B8; --ink-5:#CBD5E1;
+  --accent:#3B63F3; --accent-dark:#2C4FD1; --accent-soft:#EFF3FF; --accent-line:#C7D6FE;
+  --ok:#16A34A; --ok-ink:#067647; --ok-soft:#EAF8F0; --ok-line:#B7E6C9;
+  --warn:#F59E0B; --warn-ink:#B45309; --warn-soft:#FFF8E8; --warn-line:#FBDF9C;
+  --bad:#EF4444; --bad-ink:#D92D20; --bad-soft:#FEF1F0; --bad-line:#FBCCCA;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.06);
+  --shadow-md:0 2px 6px -1px rgba(16,24,40,.08),0 10px 28px -8px rgba(16,24,40,.14);
 }
+[hidden]{display:none!important;}
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
-body{
-  height:100vh;overflow:hidden;display:flex;flex-direction:column;
-  background:var(--bg);color:var(--ink);
-  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
-  -webkit-font-smoothing:antialiased;
-}
-a{color:var(--accent);text-decoration:none;}
-a:hover{color:var(--accent-dark);text-decoration:underline;}
-input,button,textarea{font:inherit;}
-::-webkit-scrollbar{width:10px;height:10px;}
-::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:6px;border:3px solid var(--bg);}
+body{height:100vh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+button{font:inherit;}
+:focus-visible{outline:none;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:#CDD3DE;border-radius:8px;border:2px solid transparent;background-clip:padding-box;}
 ::-webkit-scrollbar-track{background:transparent;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes cardIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;
+  padding:0 14px;height:34px;border-radius:9px;border:1px solid var(--line-2);
+  background:var(--surface);color:var(--ink-2);font-size:13px;font-weight:600;white-space:nowrap;
+  transition:background .12s,border-color .12s,box-shadow .12s;box-shadow:var(--shadow-sm);}
+.btn:hover{background:var(--subtle);border-color:#C3CBDA;}
+.btn:focus-visible{box-shadow:0 0 0 3px rgba(59,99,243,.28);}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
+.btn-ghost{border-color:transparent;background:transparent;box-shadow:none;}
+.btn-ghost:hover{background:var(--subtle);border-color:transparent;}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 1px 2px rgba(44,79,209,.4);}
+.btn-primary:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+.btn-ok{background:var(--ok);border-color:var(--ok);color:#fff;}
+.btn-ok:hover{background:#15803D;border-color:#15803D;}
+.btn-dark{background:var(--ink);border-color:var(--ink);color:#fff;}
+.btn-dark:hover{background:#1E293B;border-color:#1E293B;}
+.btn-danger{background:var(--bad);border-color:var(--bad);color:#fff;}
+.btn-danger:hover{background:#DC2626;border-color:#DC2626;}
+.btn-warn-soft{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn-ink);box-shadow:none;}
+.btn-warn-soft:hover{background:#FFEFCC;border-color:var(--warn-line);}
+.btn-bad-ghost{border-color:transparent;background:transparent;box-shadow:none;color:var(--bad-ink);}
+.btn-bad-ghost:hover{background:var(--bad-soft);border-color:transparent;}
+.btn-sm{height:30px;padding:0 11px;font-size:12.5px;border-radius:8px;gap:6px;}
+.btn-icon{width:34px;height:34px;padding:0;}
+.btn-icon.btn-sm{width:30px;height:30px;}
+.btn-lg{height:42px;padding:0 16px;font-size:13.5px;border-radius:10px;}
+.kbd{font-family:var(--mono);font-size:10.5px;line-height:1;padding:3px 6px;border-radius:5px;background:rgba(255,255,255,.22);color:#fff;}
+.kbd.dark{background:rgba(16,24,40,.06);color:var(--ink-3);border:1px solid var(--line);}
 
 /* ---------- top bar ---------- */
-.topbar{
-  display:flex;align-items:center;gap:20px;padding:0 24px;height:60px;flex-shrink:0;
-  background:var(--surface);border-bottom:1px solid var(--line);z-index:40;
-}
-.brand{display:flex;align-items:center;gap:11px;flex-shrink:0;}
-.brand-mark{
-  width:28px;height:28px;border-radius:8px;background:var(--ink);
-  display:flex;align-items:center;justify-content:center;
-}
-.brand-mark i{width:10px;height:10px;border:2px solid #fff;border-radius:2px;display:block;}
-.brand-name{font-size:14px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;}
-.vr{width:1px;height:20px;background:var(--line);}
-.file-chip{display:flex;align-items:center;gap:7px;min-width:0;}
-.file-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--ink-5);flex-shrink:0;}
-.file-chip.loaded .dot{background:var(--ok);}
-.file-chip span{
-  font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.progress-wrap{flex:1;min-width:0;display:flex;align-items:center;gap:14px;}
-.progress-track{
-  flex:1;min-width:60px;max-width:420px;height:6px;border-radius:4px;
-  background:var(--desk);overflow:hidden;display:flex;
-}
-.progress-fill{background:var(--ok);transition:width .2s;}
-.progress-count{font-size:12.5px;font-weight:600;color:var(--ink-3);white-space:nowrap;}
-.topbar-actions{display:flex;align-items:center;gap:9px;flex-shrink:0;}
-
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;
-  padding:8px 13px;border-radius:8px;border:1px solid var(--line-2);
-  background:var(--surface);color:var(--ink-2);font-size:13px;font-weight:600;
-  white-space:nowrap;transition:background .12s,border-color .12s;
-}
-.btn:hover{background:var(--surface-2);}
-.btn:disabled{opacity:.45;cursor:not-allowed;}
-.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
-.btn-primary:hover{background:var(--accent-dark);}
-.btn-ok{background:var(--ok);border-color:var(--ok);color:#fff;}
-.btn-ok:hover{background:#055C38;}
-.btn-dark{background:var(--ink);border-color:var(--ink);color:#fff;}
-.btn-dark:hover{background:#1D2939;}
-.btn-sm{padding:7px 11px;font-size:12.5px;}
-.btn-icon{width:29px;height:29px;padding:0;border-radius:7px;font-size:15px;}
-
-.helpbar{
-  display:flex;align-items:center;gap:22px;padding:10px 24px;flex-shrink:0;
-  background:var(--ink);color:var(--line);font-size:12.5px;flex-wrap:wrap;
-}
-.helpbar .k{
-  font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;
-  background:rgba(255,255,255,.12);color:#fff;
-}
-.helpbar .l{color:var(--ink-5);}
-.helpbar div{display:flex;align-items:center;gap:8px;}
+.topbar{display:flex;align-items:center;gap:14px;padding:0 18px;height:56px;flex-shrink:0;
+  background:var(--surface);border-bottom:1px solid var(--line);z-index:40;}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#1D2939,#0F1728);color:#fff;
+  display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.1);}
+.brand-name{font-size:13.5px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;}
+.brand-name em{font-style:normal;color:var(--ink-3);font-weight:600;}
+.beta{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--warn-ink);background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:99px;padding:2px 7px;}
+.vr{width:1px;height:22px;background:var(--line);flex-shrink:0;}
+.file-chip{display:flex;align-items:center;gap:8px;height:30px;padding:0 11px;border:1px solid var(--line);
+  border-radius:8px;background:var(--subtle);max-width:250px;min-width:0;flex-shrink:1;}
+.file-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-5);flex-shrink:0;transition:background .2s,box-shadow .2s;}
+.file-chip.loaded .dot{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft);}
+.file-chip .fc-name{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-chip .fc-size{font-family:var(--mono);font-size:10.5px;color:var(--ink-4);flex-shrink:0;}
+.progress-wrap{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:12px;}
+.pcount{font-size:12.5px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.pcount b{font-weight:800;}
+.pcount span{color:var(--ink-4);font-weight:600;}
+.ptrack{flex:1;max-width:380px;height:6px;border-radius:99px;background:var(--desk);overflow:hidden;}
+.pfill{height:100%;border-radius:99px;background:linear-gradient(90deg,#34C77B,#16A34A);transition:width .3s ease;}
+.plegend{display:flex;gap:5px;}
+.pl{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:600;
+  padding:2.5px 8px;border-radius:99px;white-space:nowrap;}
+.pl i{width:6px;height:6px;border-radius:50%;}
+.pl.ok{background:var(--ok-soft);color:var(--ok-ink);} .pl.ok i{background:var(--ok);}
+.pl.warn{background:var(--warn-soft);color:var(--warn-ink);} .pl.warn i{background:var(--warn);}
+.pl.bad{background:var(--bad-soft);color:var(--bad-ink);} .pl.bad i{background:var(--bad);}
+.topbar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 
 /* ---------- layout ---------- */
 .layout{flex:1;min-height:0;display:flex;align-items:stretch;}
-.col-doc{
-  flex:1 1 520px;min-width:300px;min-height:0;display:flex;flex-direction:column;
-  background:var(--desk);border-right:1px solid #DCDFE4;
-}
-.doc-toolbar{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:9px 16px;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--line);
-}
-.zoom-group{display:flex;align-items:center;gap:6px;}
-.zoom-pct{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);min-width:44px;text-align:center;}
-.toolbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.col-doc{flex:1 1 520px;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--desk);position:relative;}
+.col-rail{flex:0 0 clamp(350px,31vw,470px);min-width:340px;min-height:0;display:flex;flex-direction:column;
+  background:var(--surface);border-left:1px solid var(--line);}
 
-#docScroll{flex:1;min-height:0;overflow:auto;padding:24px;}
-#docScroll.empty{padding:20px;display:flex;}
-#pageSizer{margin:0 auto;}
-#pageScale{transform-origin:top left;}
-#pageWrap{position:relative;background:#fff;box-shadow:0 6px 24px rgba(16,24,40,.16);line-height:0;}
-#docCanvas{display:block;}
-#markerLayer{position:absolute;inset:0;}
+/* ---------- document pane ---------- */
+.doc-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;flex-shrink:0;
+  background:var(--surface);border-bottom:1px solid var(--line);}
+.zoom-left{display:flex;align-items:center;gap:8px;min-width:0;}
+.zgroup{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;
+  background:var(--surface);box-shadow:var(--shadow-sm);}
+.zgroup .btn{border:none;box-shadow:none;border-radius:0;height:30px;width:30px;}
+.zgroup .btn+.btn,.zgroup .btn+.zoom-pct{border-left:1px solid var(--line);}
+.zoom-pct{font-family:var(--mono);font-size:11.5px;min-width:48px;text-align:center;color:var(--ink-2);
+  background:none;border:none;padding:0;cursor:pointer;height:30px;}
+.zoom-pct:hover{background:var(--subtle);}
+.toolbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
+.doc-scroll{flex:1;min-height:0;overflow:auto;padding:26px;
+  background:var(--desk);
+  background-image:radial-gradient(rgba(16,24,40,.08) 1px,transparent 1.4px);
+  background-size:20px 20px;}
+.doc-scroll.empty{padding:24px;display:flex;}
 #stage{display:none;}
 #stage.active{display:block;}
-
-.marker{position:absolute;border-radius:3px;cursor:grab;transition:opacity .15s;}
-.marker.verified{border:1.5px solid var(--ok);background:rgba(6,118,71,.06);}
-.marker.review{border:1.5px solid var(--warn);background:rgba(220,104,3,.08);}
-.marker.missing{border:1.5px dashed var(--bad);background:rgba(217,45,32,.06);}
-.marker.dim{opacity:.32;}
-.marker.selected{border-width:2px;background:rgba(47,95,224,.10);box-shadow:0 0 0 4px rgba(47,95,224,.22);z-index:5;opacity:1;}
-.marker-tag{
-  position:absolute;left:-1px;top:100%;margin-top:5px;height:19px;display:none;
-  align-items:center;padding:0 8px;border-radius:5px;color:#fff;
-  font-family:var(--mono);font-size:10.5px;font-weight:500;white-space:nowrap;
-  line-height:19px;pointer-events:none;
-}
-.marker.selected .marker-tag{display:flex;}
-.marker.verified .marker-tag{background:var(--ok);}
-.marker.review .marker-tag{background:var(--warn);}
-.marker.missing .marker-tag{background:var(--bad);}
-.grip{
-  position:absolute;right:-5px;bottom:-5px;width:10px;height:10px;border-radius:2px;
-  background:var(--accent);border:1.5px solid #fff;display:none;cursor:nwse-resize;
-}
-.marker.selected .grip{display:block;}
-
-#dropzone{
-  flex:1;border:1.5px dashed var(--line-2);border-radius:10px;background:var(--surface-2);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
-  cursor:pointer;text-align:center;padding:32px;transition:border-color .15s,background .15s;
-}
-#dropzone:hover,#dropzone.drag{border-color:var(--accent);background:var(--accent-soft);}
-.dz-icon{
-  width:46px;height:46px;border-radius:12px;background:#fff;border:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;
-}
-.dz-title{font-size:15.5px;font-weight:700;letter-spacing:-.01em;}
-.dz-sub{font-size:13px;color:var(--ink-4);max-width:400px;line-height:1.55;}
-.dz-meta{font-family:var(--mono);font-size:11px;color:var(--ink-5);}
+#pageSizer{margin:0 auto;}
+#pageScale{transform-origin:top left;}
+#pageWrap{position:relative;background:#fff;border-radius:4px;line-height:0;
+  outline:1px solid rgba(16,24,40,.07);
+  box-shadow:0 1px 2px rgba(16,24,40,.08),0 18px 44px -14px rgba(16,24,40,.28);}
+#docCanvas{display:block;border-radius:4px 4px 0 0;}
+#markerLayer{position:absolute;inset:0;}
 #fileInput{display:none;}
 
-.ocr-overlay{
-  position:absolute;inset:0;background:rgba(244,245,247,.88);backdrop-filter:blur(2px);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:50;
-}
-.spinner{
-  width:26px;height:26px;border-radius:50%;
-  border:2.5px solid var(--line-2);border-top-color:var(--accent);animation:spin .8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-#ocrStatus{font-size:13.5px;font-weight:600;color:var(--ink-3);}
-#ocrSub{font-family:var(--mono);font-size:11px;color:var(--ink-5);}
+#dropzone{margin:auto;width:min(560px,100%);border:1.5px dashed var(--line-2);border-radius:16px;background:var(--surface);
+  padding:44px 32px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;cursor:pointer;
+  transition:border-color .15s,box-shadow .15s;box-shadow:var(--shadow-sm);}
+#dropzone:hover,#dropzone.drag{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
+.dz-icon{width:54px;height:54px;border-radius:14px;background:var(--accent-soft);border:1px solid var(--accent-line);
+  color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.dz-title{font-size:16px;font-weight:800;letter-spacing:-.02em;}
+.dz-sub{font-size:13px;color:var(--ink-3);max-width:430px;line-height:1.6;margin-top:4px;}
+.dz-formats{display:flex;gap:6px;margin-top:14px;}
+.dz-format{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:6px;
+  background:var(--subtle);border:1px solid var(--line);color:var(--ink-3);}
+.dz-meta{margin-top:14px;font-size:11.5px;color:var(--ink-4);display:flex;align-items:center;gap:6px;}
+
+/* markers */
+.marker{position:absolute;border-radius:4px;cursor:move;user-select:none;
+  transition:border-color .12s,background .12s,opacity .18s,box-shadow .12s;}
+.marker.verified{border:1.5px solid var(--ok);background:rgba(22,163,74,.07);}
+.marker.review{border:1.5px solid var(--warn);background:rgba(245,158,11,.10);}
+.marker.missing{border:1.5px dashed var(--bad);background:rgba(239,68,68,.07);}
+.marker.dim{opacity:.28;}
+.marker.dim:hover{opacity:.85;}
+.marker.peek{opacity:1;box-shadow:0 0 0 3px rgba(59,99,243,.16);z-index:4;}
+.marker.selected{border:2px solid var(--accent);background:rgba(59,99,243,.10);
+  box-shadow:0 0 0 4px rgba(59,99,243,.20);z-index:6;opacity:1;}
+.marker-tag{position:absolute;left:-2px;top:100%;margin-top:6px;height:20px;display:none;align-items:center;
+  padding:0 8px;border-radius:6px;color:#fff;font-family:var(--mono);font-size:10.5px;font-weight:600;
+  white-space:nowrap;line-height:20px;pointer-events:none;box-shadow:var(--shadow-sm);}
+.marker:hover .marker-tag,.marker.selected .marker-tag{display:inline-flex;}
+.marker.verified .marker-tag{background:var(--ok);}
+.marker.review .marker-tag{background:#D97706;}
+.marker.missing .marker-tag{background:var(--bad);}
+.grip{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;border-radius:3px;background:var(--accent);
+  border:2px solid #fff;box-shadow:var(--shadow-sm);display:none;cursor:nwse-resize;}
+.marker.selected .grip{display:block;}
+
+/* processing overlay */
+.proc-overlay{position:absolute;inset:0;background:rgba(245,246,248,.82);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:50;animation:fadeIn .15s ease;}
+.proc-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-md);
+  padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:14px;min-width:270px;}
+.proc-spin{width:30px;height:30px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;}
+.psteps{display:flex;flex-direction:column;gap:9px;width:100%;}
+.pstep{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600;color:var(--ink-4);}
+.pstep i{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line-2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;}
+.pstep.active{color:var(--ink);}
+.pstep.active i{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.pstep.done{color:var(--ok-ink);}
+.pstep.done i{background:var(--ok);border-color:var(--ok);color:#fff;}
+.proc-sub{font-family:var(--mono);font-size:11px;color:var(--ink-4);text-align:center;min-height:14px;}
 
 /* ---------- review rail ---------- */
-.col-rail{
-  flex:0 1 40%;min-width:330px;min-height:0;display:flex;flex-direction:column;
-  background:var(--surface);overflow:hidden;
-}
-.focus-card{padding:20px 22px 18px;flex-shrink:0;border-bottom:1px solid var(--line);}
-.focus-card.review{background:#FFFCF5;}
-.focus-card.missing{background:#FFFBFA;}
+.focus-zone{flex:0 1 auto;max-height:60%;min-height:0;overflow-y:auto;border-bottom:1px solid var(--line);}
+.focus-card{padding:18px 20px 20px;animation:cardIn .18s ease;}
+.focus-card.review{background:linear-gradient(180deg,#FFFCF0,#FFFDF8);}
+.focus-card.missing{background:linear-gradient(180deg,#FFF6F5,#FFFAF9);}
 .focus-card.verified{background:#F8FAFC;}
 .focus-head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.focus-status{display:flex;align-items:center;gap:9px;min-width:0;}
-.focus-status .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.focus-status span{
-  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
-}
+.fstatus{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 10px;border-radius:99px;
+  font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;}
+.fstatus i{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.fstatus.verified{background:var(--ok-soft);color:var(--ok-ink);} .fstatus.verified i{background:var(--ok);}
+.fstatus.review{background:var(--warn-soft);color:var(--warn-ink);} .fstatus.review i{background:var(--warn);}
+.fstatus.missing{background:var(--bad-soft);color:var(--bad-ink);} .fstatus.missing i{background:var(--bad);}
 .focus-nav{display:flex;align-items:center;gap:4px;}
-.focus-nav .btn-icon{width:28px;height:28px;font-size:13px;color:var(--ink-3);}
-.focus-pos{font-family:var(--mono);font-size:11px;color:var(--ink-5);margin-left:6px;white-space:nowrap;}
-.focus-label{font-size:22px;font-weight:800;letter-spacing:-.025em;margin-top:12px;}
-.focus-reason{font-size:13px;color:var(--ink-3);line-height:1.5;margin-top:5px;}
-.focus-hint{font-size:12px;color:var(--ink-5);font-weight:500;line-height:1.45;margin-top:6px;}
-.focus-input{
-  width:100%;margin-top:15px;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;
+.focus-nav .btn-icon{width:28px;height:28px;}
+.focus-pos{font-family:var(--mono);font-size:11px;color:var(--ink-4);margin-left:6px;white-space:nowrap;}
+.focus-label{font-size:21px;font-weight:800;letter-spacing:-.02em;margin-top:12px;}
+.focus-reason{font-size:13px;color:var(--ink-3);line-height:1.55;margin-top:6px;}
+.focus-hint{font-size:12px;color:var(--ink-4);font-weight:500;line-height:1.5;margin-top:5px;}
+.conf{display:flex;align-items:center;gap:10px;margin-top:12px;}
+.conf-bar{flex:1;max-width:220px;height:5px;border-radius:99px;background:var(--desk);overflow:hidden;}
+.conf-bar i{display:block;height:100%;border-radius:99px;background:var(--warn);}
+.conf span{font-family:var(--mono);font-size:11px;color:var(--warn-ink);font-weight:600;}
+.input-wrap{position:relative;margin-top:14px;}
+.focus-input{width:100%;padding:12px 52px 12px 14px;border:1.5px solid var(--line-2);border-radius:10px;
   background:#fff;color:var(--ink);font-family:var(--mono);font-size:15px;outline:none;
-}
+  transition:border-color .12s,box-shadow .12s;}
+.focus-input::placeholder{color:var(--ink-4);font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;}
+.focus-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(59,99,243,.14);}
 .focus-card.review .focus-input{border-color:var(--warn-line);}
 .focus-card.missing .focus-input{border-color:var(--bad-line);}
-.focus-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(47,95,224,.12);}
-.suggest{display:flex;flex-direction:column;gap:6px;margin-top:9px;}
-.suggest .cap{font-size:12px;color:var(--ink-5);font-weight:500;white-space:nowrap;}
-.suggest button{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
-  text-align:left;padding:7px 10px;border-radius:7px;border:1px dashed var(--accent-line);
-  background:var(--accent-soft);color:var(--accent-dark);font-family:var(--mono);font-size:12px;cursor:pointer;
-}
-.suggest button:hover{background:#EAF0FF;}
+.input-kbd{position:absolute;right:11px;top:50%;transform:translateY(-50%);pointer-events:none;}
+.suggest{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.suggest .cap{font-size:11px;font-weight:600;color:var(--ink-4);}
+.suggest button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;
+  padding:8px 11px;border-radius:8px;border:1px dashed var(--accent-line);background:var(--accent-soft);
+  color:var(--accent-dark);font-family:var(--mono);font-size:12px;cursor:pointer;transition:background .12s;}
+.suggest button:hover{background:#E3EBFF;}
 .suggest .val{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.suggest .use{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:11px;flex-shrink:0;}
-.cells{margin-top:15px;display:flex;flex-direction:column;gap:9px;}
-.cell{display:flex;flex-direction:column;gap:5px;}
-.cell label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-5);}
-.cell input{
-  width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;
-  background:#fff;color:var(--ink);font-family:var(--mono);font-size:13.5px;outline:none;
-}
-.cell input.blank{border-color:var(--bad-line);}
-.cell input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(47,95,224,.12);}
-.focus-actions{display:flex;align-items:center;gap:8px;margin-top:16px;flex-wrap:wrap;}
-.btn-confirm{flex:1;min-width:150px;padding:12px 16px;border-radius:9px;font-size:14px;font-weight:700;}
-.btn-confirm .kbd{
-  font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.2);
-}
-.btn-lg{padding:12px 15px;border-radius:9px;font-size:13.5px;}
-.btn-flagged{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn-ink);}
+.suggest .use{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:11px;flex-shrink:0;
+  background:#fff;padding:2.5px 9px;border-radius:6px;border:1px solid var(--accent-line);}
+.cells{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cell.wide{grid-column:1/-1;}
+.cell label{display:block;font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-4);margin-bottom:5px;}
+.cell input{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;
+  color:var(--ink);font-family:var(--mono);font-size:12.5px;outline:none;transition:border-color .12s,box-shadow .12s;}
+.cell input.blank{border-color:var(--bad-line);background:#FFFBFA;}
+.cell input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,99,243,.13);}
+.focus-actions{display:flex;align-items:center;gap:8px;margin-top:16px;}
+.btn-confirm{flex:1;min-width:150px;}
+.focus-sub{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
 
-.done-card{padding:26px 22px;flex-shrink:0;border-bottom:1px solid var(--line);background:#F6FEF9;}
-.done-row{display:flex;align-items:center;gap:11px;}
-.done-check{
-  width:32px;height:32px;border-radius:50%;background:var(--ok);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;
-}
-.done-title{font-size:17px;font-weight:800;letter-spacing:-.02em;}
-.done-sub{font-size:13px;color:var(--ink-3);margin-top:2px;}
+.done-card{margin:16px;padding:22px;border:1px solid var(--ok-line);border-radius:14px;
+  background:linear-gradient(180deg,#F2FBF6,#fff);animation:cardIn .18s ease;}
+.done-row{display:flex;align-items:center;gap:12px;}
+.done-check{width:36px;height:36px;border-radius:50%;background:var(--ok);color:#fff;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 5px var(--ok-soft);}
+.done-title{font-size:16.5px;font-weight:800;letter-spacing:-.02em;}
+.done-sub{font-size:12.5px;color:var(--ink-3);margin-top:2px;}
 
-.views{display:flex;align-items:center;gap:4px;padding:12px 14px 10px;flex-shrink:0;}
-.view-btn{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 6px;
-  border:none;border-radius:8px;background:var(--surface-2);color:var(--ink-3);
-  font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;
-}
-.view-btn.active{background:var(--ink);color:#fff;}
-.view-btn .pill{
-  font-family:var(--mono);font-size:10.5px;padding:1px 6px;border-radius:20px;
-  background:var(--desk);color:var(--ink-4);
-}
-.view-btn.active .pill{background:rgba(255,255,255,.18);color:#fff;}
+.rail-mid{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.seg{display:flex;flex:1;background:var(--subtle);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px;}
+.seg-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:5px 6px;border:none;
+  border-radius:7px;background:transparent;color:var(--ink-3);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.seg-btn:hover{color:var(--ink);}
+.seg-btn.active{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-sm);}
+.spill{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:99px;background:var(--desk);color:var(--ink-3);}
+.seg-btn.active .spill{background:var(--accent-soft);color:var(--accent-dark);}
+.json-cap{flex:1;font-family:var(--mono);font-size:11px;color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-#queue{flex:1;min-height:0;overflow-y:auto;padding:0 14px 20px;}
-.qsection{margin-bottom:14px;}
-.qhead{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 4px;
-  position:sticky;top:0;background:var(--surface);z-index:2;
-}
+.rail-scroll{flex:1;min-height:0;overflow-y:auto;}
+#queue{padding:6px 14px 18px;display:flex;flex-direction:column;gap:14px;}
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 2px;
+  position:sticky;top:0;background:var(--surface);z-index:2;box-shadow:0 8px 8px -8px rgba(16,24,40,.14);}
 .qhead .left{display:flex;align-items:center;gap:8px;min-width:0;}
-.qtitle{
-  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.qtitle{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.qmeta{font-family:var(--mono);font-size:10.5px;color:var(--ink-4);white-space:nowrap;flex-shrink:0;}
+.qitems{display:flex;flex-direction:column;gap:6px;}
+.qitem{display:flex;align-items:center;gap:10px;padding:9px 10px 9px 12px;border:1px solid var(--line);
+  border-left:3px solid var(--line-2);border-radius:9px;background:var(--surface);cursor:pointer;
+  transition:border-color .12s,background .12s,box-shadow .12s;}
+.qitem:hover{border-color:#C3CBDA;background:var(--subtle);}
+.qitem.verified{border-left-color:var(--ok);}
+.qitem.review{border-left-color:var(--warn);}
+.qitem.missing{border-left-color:var(--bad);}
+.qitem.selected{border-color:var(--accent);border-left-color:var(--accent);background:#F7F9FF;
+  box-shadow:0 0 0 3px var(--accent-soft);}
+.qbody{flex:1;min-width:0;}
+.qlbl{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.qval{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.qitem.missing .qval{color:var(--ink-4);font-style:italic;}
+.qchip{font-family:var(--mono);font-size:10px;font-weight:600;padding:2.5px 8px;border-radius:99px;flex-shrink:0;
+  display:inline-flex;align-items:center;gap:4px;}
+.qchip.verified{background:var(--ok-soft);color:var(--ok-ink);}
+.qchip.review{background:var(--warn-soft);color:var(--warn-ink);}
+.qchip.missing{background:var(--bad-soft);color:var(--bad-ink);}
+.qempty{padding:14px 12px;border:1px dashed var(--line);border-radius:9px;text-align:center;
+  font-size:12px;color:var(--ink-4);}
+.rail-idle{padding:42px 26px;display:flex;flex-direction:column;align-items:center;gap:9px;
+  text-align:center;color:var(--ink-4);}
+.rail-idle svg{color:var(--ink-5);}
+.rail-idle strong{font-size:13.5px;color:var(--ink-3);font-weight:700;}
+.rail-idle span{font-size:12.5px;line-height:1.6;max-width:280px;}
+.idle-spin{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;}
+
+#jsonZone{background:var(--subtle);}
+#jsonView{margin:0;padding:16px;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--ink-2);
+  white-space:pre-wrap;word-break:break-word;}
+.j-key{color:#1D4ED8;font-weight:600;}
+.j-str{color:#067647;}
+.j-num,.j-bool{color:#B45309;}
+
+.rail-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 14px;flex-shrink:0;
+  border-top:1px solid var(--line);background:var(--surface);}
+
+/* ---------- modal ---------- */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,40,.45);backdrop-filter:blur(2px);
+  display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn .15s ease;padding:20px;}
+.modal{background:var(--surface);border-radius:16px;box-shadow:0 24px 64px -12px rgba(16,24,40,.4);
+  width:min(480px,100%);max-height:84vh;display:flex;flex-direction:column;animation:cardIn .16s ease;}
+.modal-head{padding:18px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.modal-title{font-size:16px;font-weight:800;letter-spacing:-.01em;}
+.modal-sub{font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.5;}
+.modal-body{padding:14px 20px 18px;overflow-y:auto;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+.modal-body+.modal-foot{margin-top:0;}
+.sc-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 0;
+  border-bottom:1px dashed var(--line);}
+.sc-row:last-child{border-bottom:none;}
+.sc-desc{font-size:13px;color:var(--ink-2);font-weight:500;}
+.sc-keys{display:flex;gap:4px;flex-shrink:0;}
+.modal-json{margin:0;background:var(--subtle);border:1px solid var(--line);border-radius:10px;padding:14px;
+  font-family:var(--mono);font-size:11px;line-height:1.65;max-height:260px;overflow:auto;
+  white-space:pre-wrap;word-break:break-word;}
+
+/* ---------- toast ---------- */
+.toast-host{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:120;pointer-events:none;}
+.toast-item{display:flex;align-items:center;gap:9px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;
+  padding:10px 14px;border-radius:10px;box-shadow:var(--shadow-md);opacity:0;transform:translateY(6px);
+  transition:opacity .2s,transform .2s;max-width:340px;}
+.toast-item.in{opacity:1;transform:none;}
+.toast-item svg{flex-shrink:0;}
+.toast-item.ok svg{color:#4ADE80;}
+.toast-item.warn svg{color:#FBBF24;}
+.toast-item.info svg{color:#93C5FD;}
+
+/* ---------- mobile pane switch ---------- */
+.pane-switch{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:60;
+  background:var(--ink);border-radius:99px;padding:4px;gap:2px;box-shadow:var(--shadow-md);}
+.ps-btn{border:none;background:transparent;color:#94A3B8;font-size:12.5px;font-weight:700;
+  padding:7px 18px;border-radius:99px;cursor:pointer;}
+.ps-btn.active{background:rgba(255,255,255,.16);color:#fff;}
+@media (max-width:940px){
+  .layout{flex-direction:column;}
+  .col-doc{flex:1 1 auto;}
+  .col-rail{flex:1 1 auto;width:100%;border-left:none;border-top:1px solid var(--line);}
+  body[data-pane="doc"] .col-rail{display:none;}
+  body[data-pane="rail"] .col-doc{display:none;}
+  .pane-switch{display:flex;}
+  .plegend,.fc-size,.brand-name,.beta{display:none;}
+  .topbar{gap:10px;padding:0 12px;}
 }
-.qmeta{font-family:var(--mono);font-size:10.5px;color:var(--ink-5);white-space:nowrap;flex-shrink:0;}
-.qitems{display:flex;flex-direction:column;gap:5px;}
-.qitem{
-  display:flex;align-items:center;gap:11px;padding:10px 12px;
-  border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;
-}
-.qitem:hover{border-color:var(--accent-line);}
-.qitem.selected{border-color:var(--accent);background:#FCFDFF;}
-.qitem.verified{border-left:3px solid var(--ok);}
-.qitem.review{border-left:3px solid var(--warn);}
-.qitem.missing{border-left:3px solid var(--bad);}
-.qitem .body{flex:1;min-width:0;}
-.qitem .lbl{
-  font-size:12.5px;font-weight:600;color:var(--ink-2);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.qitem .val{
-  font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-top:3px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.qitem.missing .val{color:var(--ink-5);}
-.chip{
-  font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:20px;
-  white-space:nowrap;flex-shrink:0;
-}
-.chip.verified{background:var(--ok-soft);color:var(--ok);}
-.chip.review{background:var(--warn-soft);color:var(--warn);}
-.chip.missing{background:var(--bad-soft);color:var(--bad);}
-.qempty{
-  padding:16px 12px;border:1px dashed var(--line);border-radius:8px;
-  text-align:center;font-size:12.5px;color:var(--ink-5);
-}
-.rail-idle{padding:34px 22px;text-align:center;color:var(--ink-5);font-size:13px;line-height:1.6;}
-.rail-idle strong{color:var(--ink-3);}
-#jsonView{
-  margin:0;padding:16px;font-family:var(--mono);font-size:11.5px;line-height:1.65;
-  color:var(--ink-2);white-space:pre-wrap;word-break:break-word;max-height:40%;
-  overflow:auto;background:var(--surface-2);border-top:1px solid var(--line);display:none;flex-shrink:0;
-}
-.rail-footer{
-  padding:10px 14px;flex-shrink:0;border-top:1px solid var(--line);
-  display:flex;gap:8px;align-items:center;justify-content:space-between;
-}
-.toast{font-family:var(--mono);font-size:10.5px;color:var(--ok);opacity:0;transition:opacity .2s;}
-.toast.show{opacity:1;}
 </style>
-
 </head>
-<body>
+<body data-pane="doc">
 
-<div class="topbar">
+<header class="topbar">
   <div class="brand">
-    <div class="brand-mark"><i></i></div>
-    <div class="brand-name">Extraction Workbench</div>
-    <div class="vr"></div>
-    <div class="file-chip" id="fileChip">
-      <span class="dot"></span>
-      <span id="fileMeta">No document yet</span>
-    </div>
+    <div class="brand-mark" data-ic="file" data-ics="15"></div>
+    <div class="brand-name">Extraction <em>Workbench</em></div>
+    <span class="beta">Beta</span>
+  </div>
+  <div class="vr"></div>
+  <div class="file-chip" id="fileChip">
+    <span class="dot"></span>
+    <span class="fc-name" id="fileMeta">No document</span>
+    <span class="fc-size" id="fileSize"></span>
   </div>
 
   <div class="progress-wrap">
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <div class="progress-count"><span id="doneCount">0</span> of <span id="totalCount">0</span> checked</div>
+    <div class="pcount"><b id="doneCount">0</b> <span>/ <span id="totalCount">0</span></span></div>
+    <div class="ptrack"><div class="pfill" id="progressFill" style="width:0%"></div></div>
+    <div class="plegend">
+      <span class="pl ok" title="Confirmed"><i></i><span id="plOk">0</span></span>
+      <span class="pl warn" title="Need review"><i></i><span id="plWarn">0</span></span>
+      <span class="pl bad" title="Not found"><i></i><span id="plBad">0</span></span>
+    </div>
   </div>
 
   <div class="topbar-actions">
-    <button class="btn btn-icon" id="helpBtn" title="Keyboard shortcuts">?</button>
-    <button class="btn" id="resetBtn">Reset</button>
-    <button class="btn" id="submitBtn" disabled="">Submit record</button>
+    <button class="btn btn-icon btn-ghost" id="helpBtn" data-ic="kbd" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts"></button>
+    <button class="btn btn-ghost" id="resetBtn" data-ic="reset" data-ics="14"><span>Reset</span></button>
+    <button class="btn btn-primary" id="submitBtn" data-ic="send" data-ics="14" disabled><span>Submit record</span></button>
   </div>
-</div>
-
-<div class="helpbar" id="helpbar" style="display:none;">
-  <div><span class="k">↵</span><span class="l">confirm &amp; next</span></div>
-  <div><span class="k">↑ ↓</span><span class="l">move through queue</span></div>
-  <div><span class="k">/</span><span class="l">edit the value</span></div>
-  <div><span class="k">F</span><span class="l">flag for later</span></div>
-  <div><span class="k">S</span><span class="l">skip</span></div>
-</div>
+</header>
 
 <div class="layout">
   <!-- ============ DOCUMENT ============ -->
-  <div class="col-doc">
+  <section class="col-doc" id="docPane">
     <div class="doc-toolbar">
-      <div class="zoom-group">
-        <button class="btn btn-icon" id="zoomOutBtn" title="Zoom out">−</button>
-        <div class="zoom-pct" id="zoomPct">100%</div>
-        <button class="btn btn-icon" id="zoomInBtn" title="Zoom in">+</button>
-        <button class="btn btn-sm" id="zoomFitBtn" style="margin-left:4px;">Whole page</button>
-        <button class="btn btn-sm" id="closeupBtn">Close-up</button>
+      <div class="zoom-left">
+        <div class="zgroup">
+          <button class="btn btn-icon btn-sm" id="zoomOutBtn" disabled data-ic="zout" data-ics="14" title="Zoom out" aria-label="Zoom out"></button>
+          <button class="zoom-pct" id="zoomPct" title="Reset to 100%">100%</button>
+          <button class="btn btn-icon btn-sm" id="zoomInBtn" disabled data-ic="zin" data-ics="14" title="Zoom in" aria-label="Zoom in"></button>
+        </div>
+        <button class="btn btn-sm" id="zoomFitBtn" disabled data-ic="fit" data-ics="13"><span>Page</span></button>
+        <button class="btn btn-sm" id="zoomWidthBtn" disabled data-ic="width" data-ics="13"><span>Width</span></button>
+        <button class="btn btn-sm" id="closeupBtn" disabled data-ic="target" data-ics="13"><span>Close-up</span></button>
       </div>
       <div class="toolbar-right">
-        <button class="btn btn-sm" id="rerunAiBtn" style="display:none;">Re-extract</button>
-        <button class="btn btn-sm" id="rereadBtn" style="display:none;">Re-read box</button>
-        <button class="btn btn-sm" id="newFileBtn" style="display:none;">Replace</button>
+        <button class="btn btn-sm" id="rerunAiBtn" hidden data-ic="ai" data-ics="13" title="Send the document to be mapped onto the schema again"><span>Re-extract</span></button>
+        <button class="btn btn-sm" id="rereadAllBtn" hidden data-ic="scan" data-ics="13" title="Re-read the text under every unconfirmed box"><span>Re-read boxes</span></button>
+        <button class="btn btn-sm" id="newFileBtn" hidden data-ic="swap" data-ics="13" title="Upload a different file"><span>Replace</span></button>
       </div>
     </div>
 
-    <div id="docScroll" class="empty">
+    <div id="docScroll" class="doc-scroll empty">
       <div id="dropzone">
-        <div class="dz-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2F5FE0" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4l-4 4M12 4l4 4"></path><path d="M20 16v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3"></path></svg>
-        </div>
+        <div class="dz-icon" data-ic="upload" data-ics="24"></div>
         <div class="dz-title">Drop a file here, or click to browse</div>
-        <div class="dz-sub">Images (JPG, PNG) or PDF. For PDFs the first page is used. Text recognition and schema mapping run automatically.</div>
-        <div class="dz-meta">recognized in your browser, then sent once to map it onto the schema</div>
+        <div class="dz-sub">Images and PDFs (first page). Text recognition and AI schema mapping run automatically — you review every value before submitting.</div>
+        <div class="dz-formats">
+          <span class="dz-format">JPG</span><span class="dz-format">PNG</span><span class="dz-format">PDF</span>
+        </div>
+        <div class="dz-meta">text is located in your browser; the file is sent once to map it onto the form's schema</div>
       </div>
 
       <div id="stage">
@@ -373,91 +424,139 @@ input,button,textarea{font:inherit;}
 
       <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,application/pdf">
     </div>
-  </div>
+  </section>
 
   <!-- ============ REVIEW RAIL ============ -->
-  <div class="col-rail">
-    <div id="focusHost" style="overflow-y: scroll;height: 50%;"></div>
-    <div class="rail-idle" id="railIdle">No document yet.<br>Upload a file and the review queue appears here.</div>
-    <div class="views" id="views" style="display:none;">
-      <button class="view-btn active" data-view="todo">To check <span class="pill" id="cTodo">0</span></button>
-      <button class="view-btn" data-view="all">All <span class="pill" id="cAll">0</span></button>
-      <button class="view-btn" data-view="done">Done <span class="pill" id="cDone">0</span></button>
-    </div>
-    <div id="queue"></div>
-    <pre id="jsonView"></pre>
-    <div class="rail-footer" id="railFooter" style="display:none;">
-      <button class="btn btn-sm" id="jsonToggleBtn">View JSON</button>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <span class="toast" id="copiedToast">copied</span>
-        <button class="btn btn-sm" id="copyJsonBtn">Copy JSON</button>
+  <aside class="col-rail">
+    <div class="focus-zone" id="focusHost">
+      <div class="rail-idle" id="railIdle">
+        <span data-ic="doc" data-ics="26"></span>
+        <strong>No document yet</strong>
+        <span>Drop a document on the left and the review queue builds itself here.</span>
       </div>
     </div>
-  </div>
+
+    <div class="rail-mid" id="railMid" hidden>
+      <div class="seg" id="views">
+        <button class="seg-btn active" data-view="todo">To check <span class="spill" id="cTodo">0</span></button>
+        <button class="seg-btn" data-view="all">All <span class="spill" id="cAll">0</span></button>
+        <button class="seg-btn" data-view="done">Done <span class="spill" id="cDone">0</span></button>
+      </div>
+      <div class="json-cap" id="jsonCap" hidden>Extracted record</div>
+      <button class="btn btn-sm btn-ghost" id="jsonToggleBtn" data-ic="braces" data-ics="13"><span>JSON</span></button>
+    </div>
+
+    <div class="rail-scroll" id="queueZone" hidden><div id="queue"></div></div>
+    <div class="rail-scroll" id="jsonZone" hidden><pre id="jsonView"></pre></div>
+
+    <div class="rail-footer" id="railFooter" hidden>
+      <button class="btn btn-sm btn-ghost" id="downloadJsonBtn" data-ic="dl" data-ics="14"><span>Download</span></button>
+      <button class="btn btn-sm btn-ghost" id="copyJsonBtn" data-ic="copy" data-ics="14"><span>Copy JSON</span></button>
+    </div>
+  </aside>
 </div>
+
+<div class="pane-switch" id="paneSwitch">
+  <button class="ps-btn active" data-pane="doc">Document</button>
+  <button class="ps-btn" data-pane="rail">Review</button>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" id="modalBox"></div>
+</div>
+<div class="toast-host" id="toastHost" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
 <script type="module">
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-function toTitleCaseFromSnake(text) {
-  if (!text) return '';
-  return text.toLowerCase().split('_')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+/* ---------- tiny helpers ---------- */
+function toTitleCaseFromSnake(text){
+  if(!text) return '';
+  return text.toLowerCase().split('_').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
 }
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function round1(n){ return Math.round(n*10)/10; }
+function slugify(s){ return String(s||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,''); }
+const fmtSize = b => b<1024 ? b+' B' : b<1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
 
+const ICONS = {
+  upload:'<path d="M12 15V4m0 0L7 9m5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+  doc:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  zin:'<circle cx="11" cy="11" r="7"/><path d="m20.5 20.5-3.2-3.2M11 8v6M8 11h6"/>',
+  zout:'<circle cx="11" cy="11" r="7"/><path d="m20.5 20.5-3.2-3.2M8 11h6"/>',
+  fit:'<path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"/>',
+  width:'<path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/>',
+  target:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  ai:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="m18.5 15.5.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
+  scan:'<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+  swap:'<path d="m8 3-4 4 4 4M4 7h16"/><path d="m16 21 4-4-4-4M20 17H4"/>',
+  check:'<path d="m4.5 12.5 5 5L20 6.5"/>',
+  warn:'<path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.01"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  trash:'<path d="M4 7h16M10 11v6M14 11v6"/><path d="m6 7 1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',
+  flag:'<path d="M5 21V4"/><path d="M5 4c2-.8 4-.8 6 0s4 .8 6 0v8c-2 .8-4 .8-6 0s-4-.8-6 0"/>',
+  skip:'<path d="m6 5 7 7-7 7M14 5l7 7-7 7"/>',
+  up:'<path d="M12 19V5M5 12l7-7 7 7"/>',
+  down:'<path d="M12 5v14M19 12l-7 7-7-7"/>',
+  kbd:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10.5 10h.01M14 10h.01M17.5 10h.01M6.5 14h.01M17.5 14h.01M9.5 14h5"/>',
+  copy:'<rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5.5 15H4.5a2 2 0 0 1-2-2V4.5a2 2 0 0 1 2-2H13a2 2 0 0 1 2 2v1"/>',
+  dl:'<path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+  braces:'<path d="M8.5 3H7a2 2 0 0 0-2 2v3.5A2.5 2.5 0 0 1 2.5 11 2.5 2.5 0 0 1 5 13.5V17a2 2 0 0 0 2 2h1.5M15.5 3H17a2 2 0 0 1 2 2v3.5a2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0-2.5 2.5V17a2 2 0 0 1-2 2h-1.5"/>',
+  send:'<path d="m21.5 2.5-11 11M21.5 2.5 14 21.5l-2.5-8-8-2.5z"/>',
+  reset:'<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1L20.5 8"/><path d="M20.5 3v5h-5"/>',
+  file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+};
+const ic = (n,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
+document.querySelectorAll('[data-ic]').forEach(b=> b.insertAdjacentHTML('afterbegin', ic(b.dataset.ic, +(b.dataset.ics||16))));
+
+/* ---------- schema ---------- */
 // Field metadata for the model this workbench extracts into (e.g. dumped from a DRF
 // serializer: {type, required, read_only, and for list fields: many, nested:{sub-schema}}).
-const REFERENCE_SCHEMA = {
-  "invoice_no": "",
-  "invoice_date": "",
-  "due_date": "",
-  "tagline": "",
-  "vendor_company_name": "",
-  "vendor_address": "",
-  "vendor_city": "",
-  "vendor_state": "",
-  "vendor_zip_code": "",
-  "vendor_email": "",
-  "project_name": "",
-  "total_services": "",
-  "total_installations": "",
-  "subtotal": "",
-  "tax_percentage": "",
-  "tax_amount": "",
-  "total_amount_due": "",
-  "notes_payment_terms": "",
-  "notes_reference_note": "",
-  "notes_compliance_note": "",
-  "construction_services": {"nested":
-    {
-      "description": "",
-      "sq_ft": "",
-      "price_per_sq_ft": "",
-      "total": ""
-    }
-  },
-  "installations_and_finishing": {"nested":
-    {
-      "description": "",
-      "sq_ft": "",
-      "price_per_sq_ft": "",
-      "total": ""
-    }
+// On-screen labels are derived from each key via toTitleCaseFromSnake(), not stored here.
+// Served by the extraction API from api/reference_schema.json, the same schema /extract maps onto.
+const SCHEMA_URL = "/schema";
+const REFERENCE_SCHEMA = await loadReferenceSchema();
+async function loadReferenceSchema(){
+  try{
+    const res = await fetch(SCHEMA_URL);
+    if(!res.ok) throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+    return await res.json();
+  }catch(err){
+    console.error('Could not load the reference schema', err);
+    return {};
   }
-};
-
-// A field denotes a repeatable "child item" group when its metadata carries a "nested" sub-schema.
-function isNestedField(meta){
-  return !!(meta && typeof meta === 'object' && !Array.isArray(meta) && meta.nested);
 }
-const NESTED_GROUPS = Object.keys(REFERENCE_SCHEMA)
-  .filter(k => isNestedField(REFERENCE_SCHEMA[k]))
-  .map(k => ({ key: k, title: toTitleCaseFromSnake(k), itemKeys: Object.keys(REFERENCE_SCHEMA[k].nested) }));
-const NESTED_KEYS = NESTED_GROUPS.map(g => g.key);
-const SCALAR_KEYS = Object.keys(REFERENCE_SCHEMA).filter(k => !NESTED_KEYS.includes(k));
-function groupFor(key){ return NESTED_GROUPS.find(g => g.key === key); }
+// A field denotes a repeatable "child item" group when its metadata carries a "nested"
+// sub-schema. Each group becomes its own section of rows in the review queue.
+function isNestedField(meta){ return !!(meta && typeof meta==='object' && !Array.isArray(meta) && meta.nested); }
+// Bookkeeping columns (ids, flags, FKs, timestamps) never hold document text, so a group's
+// "primary" cell — where box location and re-read text go — is its first real content column.
+const NON_CONTENT_TYPES = ['BooleanField','PrimaryKeyRelatedField','DateTimeField','SerializerMethodField'];
+function isContentKey(key, meta){
+  if(key==='id') return false;
+  if(!meta || typeof meta!=='object') return true;
+  return !meta.read_only && !NON_CONTENT_TYPES.includes(meta.type);
+}
+const NESTED_GROUPS = Object.keys(REFERENCE_SCHEMA).filter(k=>isNestedField(REFERENCE_SCHEMA[k])).map(k=>{
+  const nested = REFERENCE_SCHEMA[k].nested;
+  const itemKeys = Object.keys(nested);
+  return { key:k, title:toTitleCaseFromSnake(k), itemKeys,
+    primary: itemKeys.find(x=>isContentKey(x, nested[x])) || itemKeys[0] };
+});
+const NESTED_KEYS = NESTED_GROUPS.map(g=>g.key);
+const SCALAR_KEYS = Object.keys(REFERENCE_SCHEMA).filter(k=>!NESTED_KEYS.includes(k));
+function groupFor(key){ return NESTED_GROUPS.find(g=>g.key===key); }
+function cellKeysOf(g){ return g.primary ? [g.primary, ...g.itemKeys.filter(k=>k!==g.primary)] : g.itemKeys; }
+
+/* ---------- backend ---------- */
+const AI_URL = "/extract";
+const FORM_TYPE = "{{form_type|escapejs}}";
+const FORM_URL = "{{form_url|escapejs}}";
 
 async function callRequest(url, body_data, file){
   // With a file the request goes out as multipart/form-data so the backend gets the original
@@ -476,119 +575,159 @@ async function callRequest(url, body_data, file){
   const res = await fetch(url, opts);
   if(!res.ok) throw new Error(`Request failed: ${res.status} ${res.statusText}`);
   const data = await res.json();
-  const raw = typeof data === 'string' ? data : (data && data.message && data.message.content);
+  const raw = typeof data==='string' ? data : (data && data.message && data.message.content);
   if(raw != null){
     const parsed = safeParseJson(String(raw));
-    if(!parsed) throw new Error('Request did not return valid JSON: ' + raw);
+    if(!parsed) throw new Error('Request did not return valid JSON: '+raw);
     return parsed;
   }
-  if(data && typeof data === 'object') return data;
-  throw new Error('Request did not return valid JSON: ' + String(data));
+  if(data && typeof data==='object') return data;
+  throw new Error('Request did not return valid JSON: '+String(data));
 }
 function safeParseJson(text){
-  try{ return JSON.parse(text); } catch(e){}
-  const s = text.indexOf('{'), e2 = text.lastIndexOf('}');
-  if(s !== -1 && e2 > s){ try{ return JSON.parse(text.slice(s, e2+1)); } catch(e){} }
+  try{ return JSON.parse(text); }catch(e){}
+  const s=text.indexOf('{'), e2=text.lastIndexOf('}');
+  if(s!==-1 && e2>s){ try{ return JSON.parse(text.slice(s,e2+1)); }catch(e){} }
   return null;
 }
 
-const AI_URL = "<YOUR AI URL>";
-const HIGH = 0.85;      // at or above this an extraction is treated as trustworthy
-const PAGE_MAX_W = 760; // rendered page width in CSS px at 100%
+const HIGH = 0.85;              // confidence at or above which a located value counts as verified
+const PAGE_MAX_W = 760;         // rendered page width in CSS px at 100%
 const MIN_W = 0.03, MIN_H = 0.012;
 
 const el = id => document.getElementById(id);
-const docScroll = el('docScroll');
-const stage = el('stage');
-const canvas = el('docCanvas');
-const ctx = canvas.getContext('2d');
-const pageWrap = el('pageWrap');
-const pageScale = el('pageScale');
-const pageSizer = el('pageSizer');
-const markerLayer = el('markerLayer');
-const queueHost = el('queue');
-const focusHost = el('focusHost');
+const docScroll = el('docScroll'), stage = el('stage');
+const canvas = el('docCanvas'), ctx = canvas.getContext('2d');
+const pageWrap = el('pageWrap'), pageScale = el('pageScale'), pageSizer = el('pageSizer');
+const markerLayer = el('markerLayer'), queueHost = el('queue'), focusHost = el('focusHost');
+const dropzone = el('dropzone'), fileInput = el('fileInput');
+const modalBackdrop = el('modalBackdrop'), modalBox = el('modalBox'), toastHost = el('toastHost');
 
-let img = null, imgW = 0, imgH = 0;
-let items = [];              // unified queue: fields AND group rows, boxes normalized 0-1
-let baseline = [];
-let ocrLines = [], ocrFullText = '';
-let selectedId = null;
-let view = 'todo';
-let zoom = 1, closeup = false;
-let currentFile = null, currentFileName = '';
-let drag = null;
-let focusKey = null;
+let img=null, imgW=0, imgH=0;
+let items=[], baseline=[];        // unified queue: fields AND group rows, boxes normalized 0-1
+let ocrLines=[], ocrFullText='';
+let selectedId=null, view='todo', zoom=1, closeup=false, focusKey=null;
+let currentFile=null, currentFileName='';
+let drag=null, jsonActive=false, processing=false, modalOpen=false, pendingCellFocus=false;
 
 /* ---------- status model ----------
    verified — confirmed by the user, or high-confidence and located on the page
    review   — extracted but uncertain (low confidence, unplaced, or flagged)
    missing  — nothing extracted at all                                          */
 function isEmptyItem(it){
-  if(it.kind === 'field') return !String(it.value || '').trim();
-  return !Object.keys(it.cells).some(k => String(it.cells[k] || '').trim());
+  if(it.kind==='field') return !String(it.value||'').trim();
+  return !Object.keys(it.cells).some(k=>String(it.cells[k]||'').trim());
 }
 function statusOf(it){
   if(it.confirmed) return 'verified';
   if(it.flagged) return 'review';
   if(isEmptyItem(it)) return 'missing';
-  if(!it.located || (it.conf || 0) < HIGH) return 'review';
+  if(!it.located || (it.conf||0) < HIGH) return 'review';
   return 'verified';
 }
 const STATUS_LABEL = { verified:'Confirmed', review:'Needs a look', missing:'Not found' };
-const STATUS_TONE  = { verified:'var(--ok)', review:'var(--warn)', missing:'var(--bad)' };
-
-function todoItems(){ return items.filter(i => statusOf(i) !== 'verified'); }
-function verifiedItems(){ return items.filter(i => statusOf(i) === 'verified'); }
-function selected(){ return items.find(i => i.id === selectedId) || null; }
+function todoItems(){ return items.filter(i=>statusOf(i)!=='verified'); }
+function verifiedItems(){ return items.filter(i=>statusOf(i)==='verified'); }
+function selected(){ return items.find(i=>i.id===selectedId) || null; }
 function groupOf(it){ return groupFor(it.group); }
-function rowsOf(key){ return items.filter(i => i.group === key); }
-
+function rowsOf(key){ return items.filter(i=>i.group===key); }
+function statusCounts(){
+  let v=0,r=0,m=0;
+  items.forEach(i=>{ const s=statusOf(i); if(s==='verified')v++; else if(s==='review')r++; else m++; });
+  return {verified:v, review:r, missing:m};
+}
 function labelOf(it){
-  if(it.kind === 'field') return it.label;
-  const g = groupOf(it);
-  return g.title.replace(/s$/,'') + ' ' + (rowsOf(it.group).indexOf(it) + 1);
+  if(it.kind==='field') return it.label;
+  return groupOf(it).title.replace(/([^s])s$/,'$1') + ' ' + (rowsOf(it.group).indexOf(it)+1);
 }
 function summaryOf(it){
-  if(it.kind === 'field') return it.value || 'nothing found';
-  const g = groupOf(it);
-  const vals = g.itemKeys.map(k => it.cells[k]).filter(v => String(v||'').trim());
+  if(it.kind==='field') return it.value || 'nothing found';
+  const vals = cellKeysOf(groupOf(it)).map(k=>it.cells[k]).filter(v=>String(v||'').trim());
   return vals.length ? vals.join(' · ') : 'empty row';
 }
 function chipOf(it){
-  const s = statusOf(it);
-  if(s === 'missing') return 'not found';
+  const s=statusOf(it);
+  if(s==='missing') return 'not found';
   if(it.confirmed) return 'ok';
   if(it.flagged) return 'flagged';
   if(!it.located) return 'unplaced';
-  return Math.round((it.conf || 0) * 100) + '%';
+  return Math.round((it.conf||0)*100)+'%';
 }
 
-/* ---------- queue navigation ---------- */
+/* ---------- toast & modal ---------- */
+function toast(msg, type='ok'){
+  const t=document.createElement('div');
+  t.className='toast-item '+type;
+  t.innerHTML = ic(type==='ok'?'check':type==='warn'?'warn':'info',14) + `<span>${esc(msg)}</span>`;
+  toastHost.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('in'));
+  setTimeout(()=>{ t.classList.remove('in'); setTimeout(()=>t.remove(),220); }, 2800);
+}
+function openModal(html){
+  modalBox.innerHTML = html;
+  modalBackdrop.hidden = false; modalOpen = true;
+  const f = modalBox.querySelector('button'); if(f) f.focus();
+}
+function closeModal(){ modalBackdrop.hidden = true; modalBox.innerHTML=''; modalOpen=false; }
+modalBackdrop.addEventListener('mousedown', e=>{ if(e.target===modalBackdrop) closeModal(); });
+
+function openShortcuts(){
+  const rows=[
+    ['Confirm & move to next','Enter'],['Previous / next item','↑ ↓ J K'],
+    ['Edit the value in focus','/'],['Flag / unflag','F'],['Skip','S'],
+    ['Re-read box region','R'],['Toggle this panel','?'],
+  ];
+  openModal(`
+    <div class="modal-head">
+      <div><div class="modal-title">Keyboard shortcuts</div><div class="modal-sub">Built for fast, mouse-optional review.</div></div>
+      <button class="btn btn-icon btn-ghost btn-sm" id="mClose" aria-label="Close">${ic('x',15)}</button>
+    </div>
+    <div class="modal-body">${rows.map(r=>`
+      <div class="sc-row"><span class="sc-desc">${r[0]}</span>
+      <span class="sc-keys">${r[1].split(' ').map(k=>`<kbd class="kbd dark">${k}</kbd>`).join('')}</span></div>`).join('')}
+    </div>`);
+  el('mClose').addEventListener('click', closeModal);
+}
+el('helpBtn').addEventListener('click', openShortcuts);
+
+/* ---------- navigation ---------- */
 function pool(){
-  const list = view === 'all' ? items : (view === 'done' ? verifiedItems() : todoItems());
+  const list = view==='all' ? items : (view==='done' ? verifiedItems() : todoItems());
   return list.length ? list : items;
+}
+function select(id){
+  selectedId = id;
+  refresh();
+  const row = queueHost.querySelector('.qitem.selected');
+  if(row) row.scrollIntoView({block:'nearest', behavior:'smooth'});
 }
 function step(dir){
   const p = pool();
-  const i = p.findIndex(x => x.id === selectedId);
-  const n = i === -1 ? 0 : (i + dir + p.length) % p.length;
-  selectedId = p[n].id;
-  refresh();
+  const i = p.findIndex(x=>x.id===selectedId);
+  select(p[i===-1 ? 0 : (i+dir+p.length)%p.length].id);
 }
-function advance(fromId){
-  const rest = todoItems().filter(x => x.id !== fromId);
-  if(!rest.length){ selectedId = null; refresh(); return; }
-  const from = items.findIndex(x => x.id === fromId);
-  const after = rest.find(x => items.findIndex(y => y.id === x.id) > from);
-  selectedId = (after || rest[0]).id;
-  refresh();
+function advanceFrom(fromId){
+  const rest = todoItems().filter(x=>x.id!==fromId);
+  if(!rest.length){ selectedId=null; refresh(); return; }
+  const from = items.findIndex(x=>x.id===fromId);
+  const after = rest.find(x=>items.findIndex(y=>y.id===x.id) > from);
+  select((after || rest[0]).id);
 }
 function confirmItem(id){
-  const it = items.find(x => x.id === id);
+  const it = items.find(x=>x.id===id);
   if(!it) return;
   it.confirmed = true; it.flagged = false; it.conf = 1; it.located = true;
-  advance(id);
+  advanceFrom(id);
+}
+function removeItem(id){
+  const idx = items.findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  items.splice(idx,1);
+  const rest = todoItems();
+  const next = rest.find(x=>items.indexOf(x)>=idx) || rest[0];
+  selectedId = next ? next.id : null;
+  refresh();
+  toast('Row removed','info');
 }
 function firstPendingId(){
   const t = todoItems();
@@ -597,66 +736,80 @@ function firstPendingId(){
 
 /* ---------- keyboard ---------- */
 window.addEventListener('keydown', e=>{
+  if(modalOpen){ if(e.key==='Escape') closeModal(); return; }
   if(e.metaKey || e.ctrlKey || e.altKey) return;
-  const typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
+  const typing = e.target && (e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA');
   const sel = selected();
-  if(e.key === 'Enter' && sel){ e.preventDefault(); confirmItem(sel.id); return; }
-  if(e.key === 'Escape' && typing){ e.target.blur(); return; }
+  if(e.key==='Enter'){
+    if(e.target.tagName==='BUTTON') return;
+    if(sel){ e.preventDefault(); confirmItem(sel.id); }
+    return;
+  }
+  if(e.key==='Escape' && typing){ e.target.blur(); return; }
   if(typing || !items.length) return;
-  if(e.key === 'ArrowDown' || e.key === 'j'){ e.preventDefault(); step(1); }
-  else if(e.key === 'ArrowUp' || e.key === 'k'){ e.preventDefault(); step(-1); }
-  else if(e.key === '/'){ e.preventDefault(); const i = focusHost.querySelector('input'); if(i) i.focus(); }
-  else if(e.key === 'f' && sel){ sel.flagged = !sel.flagged; sel.confirmed = false; refresh(); }
-  else if(e.key === 's' && sel){ advance(sel.id); }
-  else if(e.key === '?'){ toggleHelp(); }
+  if(e.key==='ArrowDown' || e.key==='j'){ e.preventDefault(); step(1); }
+  else if(e.key==='ArrowUp' || e.key==='k'){ e.preventDefault(); step(-1); }
+  else if(e.key==='/'){ e.preventDefault(); const i=focusHost.querySelector('.focus-input')||focusHost.querySelector('.cells input'); if(i) i.focus(); }
+  else if(e.key==='f' && sel){ sel.flagged=!sel.flagged; sel.confirmed=false; refresh(); }
+  else if(e.key==='s' && sel){ advanceFrom(sel.id); }
+  else if(e.key==='r' && sel){ rereadSelectedBox(); }
+  else if(e.key==='?'){ openShortcuts(); }
 });
-function toggleHelp(){
-  const bar = el('helpbar');
-  bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
-  applyZoom();
-}
-el('helpBtn').addEventListener('click', toggleHelp);
 
 /* ---------- zoom & focus-follow ---------- */
 function zoomFor(){
   if(!closeup) return zoom;
   const sel = selected();
-  if(!sel || !canvas.width) return zoom;
+  const cw = docScroll.clientWidth;
+  if(!sel || !canvas.width || !cw) return zoom;
   const boxPx = Math.max(120, sel.box.w * canvas.width);
-  return Math.round(Math.min(2.2, Math.max(0.6, (docScroll.clientWidth - 120) / boxPx)) * 100) / 100;
+  return Math.round(Math.min(2.2, Math.max(0.6, (cw-120)/boxPx))*100)/100;
 }
 function applyZoom(){
-  if(!img) return;
+  if(!img || !docScroll.clientWidth) return;
   const z = zoomFor();
   pageScale.style.transform = `scale(${z})`;
-  pageSizer.style.width = Math.round(canvas.width * z) + 'px';
-  pageSizer.style.height = Math.round(canvas.height * z) + 'px';
-  el('zoomPct').textContent = Math.round(z * 100) + '%';
-  el('closeupBtn').className = 'btn btn-sm' + (closeup ? ' btn-dark' : '');
+  pageSizer.style.width = Math.round(canvas.width*z)+'px';
+  pageSizer.style.height = Math.round(canvas.height*z)+'px';
+  el('zoomPct').textContent = Math.round(z*100)+'%';
+  el('closeupBtn').classList.toggle('btn-dark', closeup);
 }
 // The page follows the selection instead of the operator hunting for it. Assign scroll
 // offsets synchronously — neither behavior:'smooth' nor a deferred write lands here.
 function scrollToSelection(){
   const sel = selected();
-  if(!sel || !img) return;
+  if(!sel || !img || !docScroll.clientWidth) return;
   const z = zoomFor();
   const cx = (sel.box.x + sel.box.w/2) * canvas.width * z;
   const cy = (sel.box.y + sel.box.h/2) * canvas.height * z;
-  const pad = 24;
-  docScroll.scrollLeft = Math.max(0, cx + pad - docScroll.clientWidth/2);
-  docScroll.scrollTop  = Math.max(0, cy + pad - docScroll.clientHeight/2);
+  docScroll.scrollLeft = Math.max(0, cx + 24 - docScroll.clientWidth/2);
+  docScroll.scrollTop  = Math.max(0, cy + 24 - docScroll.clientHeight/2);
 }
-el('zoomInBtn').addEventListener('click', ()=>{ closeup = false; zoom = Math.min(2.4, Math.round((zoom+0.1)*100)/100); applyZoom(); });
-el('zoomOutBtn').addEventListener('click', ()=>{ closeup = false; zoom = Math.max(0.3, Math.round((zoom-0.1)*100)/100); applyZoom(); });
-el('zoomFitBtn').addEventListener('click', ()=>{ closeup = false; zoom = fitZoom(); applyZoom(); });
-el('closeupBtn').addEventListener('click', ()=>{ closeup = !closeup; applyZoom(); scrollToSelection(); });
+// Re-zooms and re-centres only when the selection or close-up mode actually changed, so
+// edits and manual zooms don't yank the page back.
+function followSelection(){
+  const key = selectedId+'|'+closeup;
+  if(key===focusKey) return;
+  focusKey = key;
+  applyZoom(); scrollToSelection();
+}
+function setZoom(z){
+  closeup = false; zoom = z;
+  focusKey = selectedId+'|'+closeup;
+  applyZoom();
+}
+el('zoomInBtn').addEventListener('click', ()=>setZoom(Math.min(2.4, Math.round((zoom+0.1)*100)/100)));
+el('zoomOutBtn').addEventListener('click', ()=>setZoom(Math.max(0.3, Math.round((zoom-0.1)*100)/100)));
+el('zoomPct').addEventListener('click', ()=>setZoom(1));
+el('zoomFitBtn').addEventListener('click', ()=>setZoom(fitZoom()));
+el('zoomWidthBtn').addEventListener('click', ()=>setZoom(Math.max(0.3, Math.round(((docScroll.clientWidth-56)/(canvas.width||1))*100)/100)));
+el('closeupBtn').addEventListener('click', ()=>{ closeup=!closeup; followSelection(); });
 function fitZoom(){
-  const avail = docScroll.clientHeight - 48;
-  return Math.max(0.3, Math.round(Math.min(1, avail / (canvas.height || 1)) * 100) / 100);
+  const avail = docScroll.clientHeight - 52;
+  return Math.max(0.3, Math.round(Math.min(1, avail/(canvas.height||1))*100)/100);
 }
 
 /* ---------- file handling ---------- */
-const dropzone = el('dropzone'), fileInput = el('fileInput');
 dropzone.addEventListener('click', ()=>fileInput.click());
 dropzone.addEventListener('dragover', e=>{ e.preventDefault(); dropzone.classList.add('drag'); });
 dropzone.addEventListener('dragleave', ()=>dropzone.classList.remove('drag'));
@@ -666,46 +819,85 @@ dropzone.addEventListener('drop', e=>{
 });
 fileInput.addEventListener('change', e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
 
-el('newFileBtn').addEventListener('click', ()=>{
+function setLoaded(on){
+  ['rerunAiBtn','rereadAllBtn','newFileBtn'].forEach(id=>el(id).hidden=!on);
+  ['zoomInBtn','zoomOutBtn','zoomFitBtn','zoomWidthBtn','closeupBtn'].forEach(id=>el(id).disabled=!on);
+  el('railMid').hidden = !on;
+  el('queueZone').hidden = !on || jsonActive;
+  el('railFooter').hidden = !on;
+}
+function hardReset(){
+  closeModal(); procHide(); setJsonActive(false);
   stage.classList.remove('active');
-  dropzone.style.display = 'flex';
+  dropzone.style.display='';
   docScroll.classList.add('empty');
-  ['rerunAiBtn','rereadBtn','newFileBtn'].forEach(id => el(id).style.display = 'none');
-  el('railFooter').style.display = 'none';
-  el('views').style.display = 'none';
-  el('railIdle').style.display = 'block';
+  setLoaded(false);
   el('submitBtn').disabled = true;
   el('fileChip').classList.remove('loaded');
-  el('fileMeta').textContent = 'No document yet';
-  items = []; baseline = []; ocrLines = []; ocrFullText = '';
-  img = null; currentFile = null; currentFileName = ''; selectedId = null;
-  fileInput.value = '';
+  el('fileMeta').textContent = 'No document';
+  el('fileSize').textContent = '';
+  items=[]; baseline=[]; ocrLines=[]; ocrFullText='';
+  img=null; currentFile=null; currentFileName=''; selectedId=null; focusKey=null;
+  zoom=1; closeup=false; el('zoomPct').textContent='100%';
+  fileInput.value='';
   refresh();
+}
+el('newFileBtn').addEventListener('click', hardReset);
+el('resetBtn').addEventListener('click', ()=>{
+  if(!items.length){ hardReset(); return; }
+  openModal(`
+    <div class="modal-head">
+      <div><div class="modal-title">Reset workbench?</div>
+      <div class="modal-sub">Revert puts every value and box back to what was last extracted. Clear removes the document and all review progress. Neither can be undone.</div></div>
+      <button class="btn btn-icon btn-ghost btn-sm" id="mClose" aria-label="Close">${ic('x',15)}</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="mCancel">Cancel</button>
+      ${baseline.length ? `<button class="btn" id="mRevert">${ic('reset',14)} Revert edits</button>` : ''}
+      <button class="btn btn-danger" id="mReset">Clear document</button>
+    </div>`);
+  el('mClose').addEventListener('click', closeModal);
+  el('mCancel').addEventListener('click', closeModal);
+  if(el('mRevert')) el('mRevert').addEventListener('click', ()=>{
+    closeModal();
+    items = baseline.map(cloneItem);
+    selectedId = firstPendingId();
+    focusKey = null;
+    refresh();
+    toast('Reverted to the last extraction','info');
+  });
+  el('mReset').addEventListener('click', ()=>{ closeModal(); hardReset(); toast('Workbench cleared','info'); });
 });
 
 async function handleFile(file){
   currentFile = file; currentFileName = file.name;
   el('fileChip').classList.add('loaded');
   el('fileMeta').textContent = file.name;
-
-  if(file.type === 'application/pdf'){
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({data: buf}).promise;
-    const page = await pdf.getPage(1);
-    const viewport = page.getViewport({scale: 2});
-    const off = document.createElement('canvas');
-    off.width = viewport.width; off.height = viewport.height;
-    await page.render({canvasContext: off.getContext('2d'), viewport}).promise;
-    img = off; imgW = off.width; imgH = off.height;
-    onDocReady();
-  } else {
-    const reader = new FileReader();
-    reader.onload = e=>{
-      const image = new Image();
-      image.onload = ()=>{ img = image; imgW = image.naturalWidth; imgH = image.naturalHeight; onDocReady(); };
-      image.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+  el('fileSize').textContent = ' · ' + fmtSize(file.size);
+  try{
+    if(file.type === 'application/pdf'){
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({scale: 2});
+      const off = document.createElement('canvas');
+      off.width = viewport.width; off.height = viewport.height;
+      await page.render({canvasContext: off.getContext('2d'), viewport}).promise;
+      img = off; imgW = off.width; imgH = off.height;
+      onDocReady();
+    } else {
+      const reader = new FileReader();
+      reader.onload = e=>{
+        const image = new Image();
+        image.onload = ()=>{ img=image; imgW=image.naturalWidth; imgH=image.naturalHeight; onDocReady(); };
+        image.onerror = ()=>toast('Could not read that file','warn');
+        image.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }catch(err){
+    console.error(err);
+    toast('Could not read that file','warn');
   }
 }
 
@@ -713,17 +905,14 @@ function onDocReady(){
   dropzone.style.display = 'none';
   docScroll.classList.remove('empty');
   stage.classList.add('active');
-  ['rerunAiBtn','rereadBtn','newFileBtn'].forEach(id => el(id).style.display = 'inline-flex');
-  el('railFooter').style.display = 'none';
-  el('views').style.display = 'flex';
-  el('railIdle').style.display = 'none';
+  setLoaded(true);
   el('submitBtn').disabled = false;
 
   const scale = Math.min(PAGE_MAX_W/imgW, 1);
   canvas.width = Math.round(imgW*scale);
   canvas.height = Math.round(imgH*scale);
-  pageWrap.style.width = canvas.width + 'px';
-  pageWrap.style.height = canvas.height + 'px';
+  pageWrap.style.width = canvas.width+'px';
+  pageWrap.style.height = canvas.height+'px';
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   zoom = fitZoom(); closeup = false;
@@ -731,44 +920,52 @@ function onDocReady(){
   runOcr();
 }
 
-/* ---------- OCR + extraction ---------- */
-function overlay(on, status, sub){
-  let o = el('ocrOverlay');
-  if(on){
-    if(!o){
-      o = document.createElement('div');
-      o.className = 'ocr-overlay'; o.id = 'ocrOverlay';
-      o.innerHTML = '<div class="spinner"></div><div id="ocrStatus"></div><div id="ocrSub"></div>';
-      docScroll.parentNode.style.position = 'relative';
-      docScroll.parentNode.appendChild(o);
-    }
-    o.style.display = 'flex';
-    if(status != null) el('ocrStatus').textContent = status;
-    if(sub != null) el('ocrSub').textContent = sub;
-  } else if(o){
-    o.style.display = 'none';
+/* ---------- processing stepper ---------- */
+const STEPS = ['Recognize page text','Map to schema'];
+const QUEUE_MSG  = { title:'Building your review queue…', detail:'Reading the page and mapping fields to your schema.' };
+const REREAD_MSG = { title:'Re-reading boxes…', detail:'Reading the text under each unconfirmed box.' };
+let procEl = null, procMsg = QUEUE_MSG;
+function procShow(stepIdx, sub, steps=STEPS, msg=QUEUE_MSG){
+  const railChanged = !processing || procMsg!==msg;
+  processing = true; procMsg = msg;
+  if(!procEl){
+    procEl = document.createElement('div');
+    procEl.className = 'proc-overlay';
+    procEl.innerHTML = `<div class="proc-card"><div class="proc-spin"></div><div class="psteps"></div><div class="proc-sub"></div></div>`;
+    el('docPane').appendChild(procEl);
   }
+  procEl.style.display = 'flex';
+  procEl.querySelector('.psteps').innerHTML = steps.map((s,i)=>{
+    const st = i<stepIdx ? 'done' : (i===stepIdx ? 'active' : '');
+    return `<div class="pstep ${st}"><i>${i<stepIdx ? ic('check',10) : ''}</i><span>${s}</span></div>`;
+  }).join('');
+  procEl.querySelector('.proc-sub').textContent = sub || '';
+  if(railChanged) renderFocus();
 }
+function procHide(){ processing = false; if(procEl) procEl.style.display = 'none'; }
 
+/* ---------- OCR + extraction ---------- */
+// OCR only locates values on the page (boxes + "on the page it reads" suggestions); the
+// extraction service reads the uploaded file itself, so mapping runs even without it.
 async function runOcr(){
-  overlay(true, 'Reading the page', 'loading text recognition…');
+  procShow(0, 'loading text recognition…');
+  ocrLines = []; ocrFullText = '';
   if(typeof Tesseract === 'undefined'){
-    overlay(true, 'Text recognition unavailable', 'mapping the page without it');
-    ocrLines = []; ocrFullText = '';
-    return runAiExtraction();
-  }
-  try{
-    const { data } = await Tesseract.recognize(img, 'eng', {
-      logger: m=>{
-        if(m.status === 'recognizing text') el('ocrSub').textContent = `recognizing text… ${Math.round(m.progress*100)}%`;
-        else if(m.status) el('ocrSub').textContent = m.status.replace(/[_-]/g,' ');
-      }
-    });
-    ocrLines = (data.lines || []).filter(l => l.text.trim() && l.confidence > 35);
-    ocrFullText = data.text || '';
-  } catch(err){
-    console.error(err);
-    ocrLines = []; ocrFullText = '';
+    toast('Text recognition unavailable — values won\u2019t be located on the page','warn');
+  } else {
+    try{
+      const { data } = await Tesseract.recognize(img, 'eng', {
+        logger: m=>{
+          if(m.status==='recognizing text') procEl.querySelector('.proc-sub').textContent = `recognizing text… ${Math.round(m.progress*100)}%`;
+          else if(m.status) procEl.querySelector('.proc-sub').textContent = m.status.replace(/[_-]/g,' ');
+        }
+      });
+      ocrLines = (data.lines||[]).filter(l=>l.text.trim() && l.confidence>35);
+      ocrFullText = data.text || '';
+    }catch(err){
+      console.error(err);
+      toast('Text recognition failed — values won\u2019t be located on the page','warn');
+    }
   }
   await runAiExtraction();
 }
@@ -782,118 +979,131 @@ function locateBboxForValue(value){
   }
   return null;
 }
-function placeFromMatch(target, match, fallback){
+// Where a box goes when its value can't be found on the page — kept inside the page so
+// every marker stays reachable, whatever the schema size.
+function fallbackBox(i, kind){
+  if(kind==='row') return { x:0.06, y:Math.min(0.6+i*0.05, 0.93), w:0.5, h:0.04 };
+  const col = Math.floor(i/18)%2;
+  return { x:0.04+col*0.5, y:0.04+(i%18)*0.052, w:0.42, h:0.04 };
+}
+function placeFromMatch(target, match, fallback, fallbackConf){
   if(match){
-    target.box = {
-      x: match.bbox.x0/imgW, y: match.bbox.y0/imgH,
-      w: (match.bbox.x1-match.bbox.x0)/imgW, h: (match.bbox.y1-match.bbox.y0)/imgH
-    };
+    target.box = { x: match.bbox.x0/imgW, y: match.bbox.y0/imgH,
+      w: (match.bbox.x1-match.bbox.x0)/imgW, h: (match.bbox.y1-match.bbox.y0)/imgH };
     target.located = true;
-    target.conf = Math.min(1, (match.confidence || 70)/100);
+    target.conf = Math.min(1, (match.confidence||70)/100);
     // What the page itself reads there — offered as a one-click suggestion when it
     // differs from the extracted value.
     target.suggestion = match.text.trim();
   } else {
-    target.box = { x: fallback.x, y: fallback.y, w: fallback.w, h: fallback.h };
+    target.box = { ...fallback };
     target.located = false;
-    target.conf = fallback.conf != null ? fallback.conf : 0;
+    target.conf = fallbackConf;
     target.suggestion = '';
   }
 }
-
 function fieldsFromRawLines(){
   // Fallback when the extraction service is unreachable: match each scalar schema key
-  // against a "label: value" OCR line.
-  return SCALAR_KEYS.map((key, i) => {
+  // against a "label: value" OCR line. Line items have no reliable raw-OCR fallback — they're added by hand.
+  return SCALAR_KEYS.map((key,i)=>{
     const display = toTitleCaseFromSnake(key);
-    let value = '', match = null;
+    let value='', match=null;
     for(const l of ocrLines){
       const text = l.text.trim();
       const c = text.indexOf(':');
-      if(c <= 0 || c >= 30) continue;
+      if(c<=0 || c>=30) continue;
       const label = text.slice(0,c).trim().toLowerCase();
       const dl = display.toLowerCase();
       if(label.includes(dl) || dl.includes(label)){ value = text.slice(c+1).trim(); match = l; break; }
     }
     const it = { kind:'field', id:'f_'+key, field:key, group:null, label:display, value, confirmed:false, flagged:false };
-    placeFromMatch(it, match, { x:0.06, y:0.06 + i*0.09, w:0.36, h:0.045, conf:0 });
+    placeFromMatch(it, match, fallbackBox(i,'field'), 0);
     return it;
   });
 }
-
 async function runAiExtraction(){
-  overlay(true, 'Mapping the page to your schema', 'this usually takes a few seconds…');
+  procShow(1, 'mapping fields to your schema…');
   try{
     // Only the file goes in the body; this page's own URL params (serializer, form_type, …)
     // are forwarded on the query string so the backend resolves the same reference schema.
     const parsed = await callRequest(AI_URL + window.location.search, {}, currentFile);
-
     const next = [];
-    SCALAR_KEYS.forEach((key, i) => {
+    SCALAR_KEYS.forEach((key,i)=>{
       const value = parsed[key] != null ? String(parsed[key]) : '';
-      const it = {
-        kind:'field', id:'f_'+key, field:key, group:null,
-        label: toTitleCaseFromSnake(key), value, confirmed:false, flagged:false
-      };
-      placeFromMatch(it, locateBboxForValue(value), { x:0.06, y:0.06 + i*0.09, w:0.36, h:0.045, conf: value ? 0.5 : 0 });
+      const it = { kind:'field', id:'f_'+key, field:key, group:null,
+        label: toTitleCaseFromSnake(key), value, confirmed:false, flagged:false };
+      placeFromMatch(it, locateBboxForValue(value), fallbackBox(i,'field'), value ? 0.5 : 0);
       next.push(it);
     });
-    NESTED_GROUPS.forEach(g => {
+    NESTED_GROUPS.forEach(g=>{
       const rows = Array.isArray(parsed[g.key]) ? parsed[g.key] : [];
-      rows.forEach((row, i) => {
+      rows.forEach((row,i)=>{
         const it = { kind:'row', id:'r_'+g.key+'_'+i, group:g.key, confirmed:false, flagged:false, cells:{} };
-        g.itemKeys.forEach(k => { it.cells[k] = row && row[k] != null ? String(row[k]) : ''; });
-        placeFromMatch(it, locateBboxForValue(it.cells[g.itemKeys[0]] || ''), { x:0.06, y:0.6 + i*0.05, w:0.5, h:0.04, conf:0.5 });
+        g.itemKeys.forEach(k=>{ it.cells[k] = row && row[k] != null ? String(row[k]) : ''; });
+        placeFromMatch(it, locateBboxForValue(it.cells[g.primary]||''), fallbackBox(i,'row'), 0.5);
         next.push(it);
       });
     });
-    items = next;
-    overlay(false);
-  } catch(err){
+    finishExtraction(next, `Extraction complete — ${next.length} items mapped`, 'ok');
+  }catch(err){
     console.error(err);
-    overlay(true, 'Extraction service unreachable', 'showing raw recognized lines instead');
-    items = fieldsFromRawLines();
-    setTimeout(()=>overlay(false), 2200);
+    finishExtraction(fieldsFromRawLines(), 'Extraction service unreachable — showing raw recognized lines instead', 'warn');
   }
-
+}
+function finishExtraction(next, msg, type){
+  items = next;
+  procHide();
+  toast(msg, type);
   baseline = items.map(cloneItem);
   selectedId = firstPendingId();
   focusKey = null;
   refresh();
 }
-function cloneItem(it){
-  return { ...it, box: { ...it.box }, cells: it.cells ? { ...it.cells } : undefined };
-}
+function cloneItem(it){ return { ...it, box:{...it.box}, cells: it.cells ? {...it.cells} : undefined }; }
 
-async function rereadSelectedBox(){
-  // Re-reads the focused marker's own region of the source image, so dragging a box and
-  // clicking this re-extracts whatever text now sits under it.
-  const sel = selected();
-  if(!sel || !img) return;
-  if(typeof Tesseract === 'undefined'){
-    overlay(true, 'Text recognition unavailable', 'cannot re-read boxes');
-    setTimeout(()=>overlay(false), 1600);
-    return;
-  }
-  overlay(true, 'Re-reading ' + labelOf(sel), 'one moment…');
-  const cx = Math.round(sel.box.x*imgW), cy = Math.round(sel.box.y*imgH);
-  const cw = Math.max(1, Math.round(sel.box.w*imgW)), ch = Math.max(1, Math.round(sel.box.h*imgH));
+// Re-reads the source image under an item's box, so dragging/resizing a box and re-reading
+// picks up whatever text now sits under it — independent of the extraction service.
+async function readBoxInto(it){
+  const cx = Math.round(it.box.x*imgW), cy = Math.round(it.box.y*imgH);
+  const cw = Math.max(1, Math.round(it.box.w*imgW)), ch = Math.max(1, Math.round(it.box.h*imgH));
   const crop = document.createElement('canvas');
   crop.width = cw; crop.height = ch;
   crop.getContext('2d').drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
   try{
     const { data } = await Tesseract.recognize(crop, 'eng');
-    const text = (data.text || '').trim();
-    if(sel.kind === 'field') sel.value = text;
-    else { const g = groupOf(sel); if(g.itemKeys.length) sel.cells[g.itemKeys[0]] = text; }
-    sel.located = true; sel.confirmed = false; sel.suggestion = text;
-    sel.conf = Math.min(1, (data.confidence != null ? data.confidence : 80)/100);
-  } catch(err){ console.error(err); }
-  overlay(false);
+    const text = (data.text||'').trim();
+    if(it.kind==='field') it.value = text;
+    else { const g = groupOf(it); if(g.primary) it.cells[g.primary] = text; }
+    it.located = true; it.confirmed = false; it.suggestion = text;
+    it.conf = Math.min(1, (data.confidence != null ? data.confidence : 80)/100);
+    return text;
+  }catch(err){ console.error(err); return null; }
+}
+async function rereadSelectedBox(){
+  const sel = selected();
+  if(!sel || !img || processing) return;
+  if(typeof Tesseract === 'undefined'){ toast('Text recognition unavailable','warn'); return; }
+  toast('Re-reading box region…','info');
+  const text = await readBoxInto(sel);
+  if(text != null) toast(text ? 'Box re-read' : 'No text found in that box', text ? 'ok' : 'warn');
   refresh();
 }
-el('rereadBtn').addEventListener('click', rereadSelectedBox);
-el('rerunAiBtn').addEventListener('click', ()=>{ if(currentFile) runAiExtraction(); });
+async function rereadAllBoxes(){
+  if(!img || processing || !items.length) return;
+  if(typeof Tesseract === 'undefined'){ toast('Text recognition unavailable','warn'); return; }
+  const targets = items.filter(it=>it.located && !it.confirmed);
+  if(!targets.length){ toast('No unconfirmed boxes on the page to re-read','info'); return; }
+  for(let i=0;i<targets.length;i++){
+    procShow(0, `box ${i+1} of ${targets.length} · ${labelOf(targets[i])}`, ['Re-read marked boxes'], REREAD_MSG);
+    await readBoxInto(targets[i]);
+  }
+  procHide();
+  baseline = items.map(cloneItem);
+  refresh();
+  toast(`Re-read ${targets.length} box${targets.length===1 ? '' : 'es'}`,'ok');
+}
+el('rereadAllBtn').addEventListener('click', rereadAllBoxes);
+el('rerunAiBtn').addEventListener('click', ()=>{ if(!processing && currentFile) runAiExtraction(); });
 
 /* ---------- markers ---------- */
 function renderMarkers(){
@@ -904,7 +1114,7 @@ function renderMarkers(){
     const s = statusOf(it);
     const isSel = it.id === selectedId;
     const box = document.createElement('div');
-    box.className = 'marker ' + s + (isSel ? ' selected' : (hasSel ? ' dim' : ''));
+    box.className = 'marker '+s+(isSel ? ' selected' : (hasSel ? ' dim' : ''));
     box.dataset.id = it.id;
     box.style.left = (it.box.x*100)+'%';
     box.style.top = (it.box.y*100)+'%';
@@ -922,7 +1132,7 @@ function renderMarkers(){
       e.preventDefault();
       const resize = e.target.dataset.grip === '1';
       selectedId = it.id;
-      drag = { mode: resize ? 'resize' : 'move', id: it.id, sx: e.clientX, sy: e.clientY, orig: {...it.box} };
+      drag = { mode: resize?'resize':'move', id: it.id, sx: e.clientX, sy: e.clientY, orig: {...it.box} };
       refresh();
     });
     markerLayer.appendChild(box);
@@ -930,84 +1140,92 @@ function renderMarkers(){
 }
 window.addEventListener('mousemove', e=>{
   if(!drag) return;
-  const it = items.find(x => x.id === drag.id);
+  const it = items.find(x=>x.id===drag.id);
   if(!it) return;
   const rect = pageWrap.getBoundingClientRect();
-  const dx = (e.clientX - drag.sx) / rect.width;
-  const dy = (e.clientY - drag.sy) / rect.height;
+  const dx = (e.clientX - drag.sx)/rect.width;
+  const dy = (e.clientY - drag.sy)/rect.height;
   const o = drag.orig;
-  if(drag.mode === 'move'){
+  if(drag.mode==='move'){
     it.box.x = clamp(o.x+dx, 0, 1-o.w);
     it.box.y = clamp(o.y+dy, 0, 1-o.h);
   } else {
     it.box.w = clamp(o.w+dx, MIN_W, 1-o.x);
     it.box.h = clamp(o.h+dy, MIN_H, 1-o.y);
   }
+  it.located = true;  // a box the reviewer placed by hand counts as located, so "Re-read boxes" includes it
   markerLayer.querySelectorAll('.marker').forEach(b=>{
-    const t = items.find(x => x.id === b.dataset.id);
+    const t = items.find(x=>x.id===b.dataset.id);
     if(!t) return;
     b.style.left = (t.box.x*100)+'%'; b.style.top = (t.box.y*100)+'%';
     b.style.width = (t.box.w*100)+'%'; b.style.height = (t.box.h*100)+'%';
   });
 });
-window.addEventListener('mouseup', ()=>{ if(drag){ drag = null; } });
-function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+window.addEventListener('mouseup', ()=>{ drag = null; });
 
 /* ---------- focus card ---------- */
+const IDLE_HTML = `<div class="rail-idle">${ic('doc',26)}<strong>No document yet</strong><span>Drop a document on the left and the review queue builds itself here.</span></div>`;
+
 function renderFocus(){
+  if(processing){
+    focusHost.innerHTML = `<div class="rail-idle"><div class="idle-spin"></div><strong>${esc(procMsg.title)}</strong><span>${esc(procMsg.detail)}</span></div>`;
+    return;
+  }
+  if(!items.length){ focusHost.innerHTML = IDLE_HTML; return; }
+
   const sel = selected();
-  const todo = todoItems();
-
-  if(!items.length){ focusHost.innerHTML = ''; return; }
-
   if(!sel){
     focusHost.innerHTML = `
       <div class="done-card">
         <div class="done-row">
-          <div class="done-check">&#10003;</div>
+          <div class="done-check">${ic('check',17)}</div>
           <div>
             <div class="done-title">Everything checked</div>
             <div class="done-sub">${items.length} items confirmed against the page.</div>
           </div>
         </div>
-        <button class="btn btn-ok btn-confirm" id="doneSubmit" style="width:100%;margin-top:16px;">Submit record</button>
+        <button class="btn btn-ok btn-confirm btn-lg" id="doneSubmit" style="width:100%;margin-top:16px;">${ic('send',14)} Submit record</button>
       </div>`;
-    el('doneSubmit').addEventListener('click', submitRecord);
+    el('doneSubmit').addEventListener('click', openSubmit);
     return;
   }
 
   const s = statusOf(sel);
-  const idx = todo.findIndex(x => x.id === sel.id);
-  const reason = s === 'missing'
+  const todo = todoItems();
+  const idx = todo.findIndex(x=>x.id===sel.id);
+  const pct = Math.round((sel.conf||0)*100);
+  const reason = s==='missing'
     ? 'Nothing was read here. Type the value, or drag its box over the right text on the page.'
-    : s === 'review'
+    : s==='review'
       ? (sel.located
-          ? `Only ${Math.round((sel.conf||0)*100)}% match against the page — compare it with the highlight on the left.`
-          : 'We could not find this value on the page — check where its box sits.')
-      : 'Matches the page cleanly. Confirm to move on.';
-  const hint = closeup ? 'Page follows the field in focus.' : 'Drag its box on the page to correct the position, then Re-read box.';
-  const g = sel.kind === 'row' ? groupOf(sel) : null;
-  const showSuggest = sel.kind === 'field' && sel.suggestion && sel.suggestion !== sel.value;
+          ? `Only ${pct}% confidence — compare it with the highlighted region on the page.`
+          : 'This value couldn\u2019t be located on the page — check where its box sits.')
+      : 'Matches the page cleanly. Confirm to lock it in.';
+  const hint = closeup ? 'Close-up follows the field in focus.' : 'Drag the box on the page to adjust position, then Re-read box.';
+  const g = sel.kind==='row' ? groupOf(sel) : null;
+  const showSuggest = sel.kind==='field' && sel.suggestion && sel.suggestion !== sel.value;
 
   focusHost.innerHTML = `
     <div class="focus-card ${s}">
       <div class="focus-head">
-        <div class="focus-status">
-          <span class="dot" style="background:${STATUS_TONE[s]}"></span>
-          <span style="color:${STATUS_TONE[s]}">${sel.flagged ? 'Flagged' : STATUS_LABEL[s]}</span>
-        </div>
+        <div class="fstatus ${sel.flagged ? 'review' : s}"><i></i><span>${sel.flagged ? 'Flagged' : STATUS_LABEL[s]}</span></div>
         <div class="focus-nav">
-          <button class="btn btn-icon" id="prevBtn" title="Previous (↑)">&uarr;</button>
-          <button class="btn btn-icon" id="nextBtn" title="Next (↓)">&darr;</button>
-          <span class="focus-pos">${idx >= 0 ? (idx+1) + ' of ' + todo.length + ' left' : 'reviewed'}</span>
+          <button class="btn btn-icon btn-ghost btn-sm" id="prevBtn" title="Previous (↑)" aria-label="Previous">${ic('up',14)}</button>
+          <button class="btn btn-icon btn-ghost btn-sm" id="nextBtn" title="Next (↓)" aria-label="Next">${ic('down',14)}</button>
+          <span class="focus-pos">${idx>=0 ? (idx+1)+' / '+todo.length+' left' : 'all clear'}</span>
         </div>
       </div>
       <div class="focus-label">${esc(labelOf(sel))}</div>
       <div class="focus-reason">${reason}</div>
       <div class="focus-hint">${hint}</div>
-      ${sel.kind === 'field' ? `
-        <input class="focus-input" id="focusInput" value="${esc(sel.value)}"
-               placeholder="Nothing found — type it, or drag the box on the page" />
+      ${s==='review' && sel.located ? `
+        <div class="conf"><div class="conf-bar"><i style="width:${pct}%"></i></div><span>${pct}% match</span></div>` : ''}
+      ${sel.kind==='field' ? `
+        <div class="input-wrap">
+          <input class="focus-input" id="focusInput" value="${esc(sel.value)}"
+                 placeholder="Type the value, or drag the box on the page" />
+          <span class="input-kbd"><kbd class="kbd dark">/</kbd></span>
+        </div>
         ${showSuggest ? `
           <div class="suggest">
             <div class="cap">On the page it reads</div>
@@ -1015,40 +1233,49 @@ function renderFocus(){
           </div>` : ''}
       ` : `
         <div class="cells">
-          ${g.itemKeys.map(k=>`
-            <div class="cell">
+          ${cellKeysOf(g).map((k,i)=>`
+            <div class="cell ${i===0 ? 'wide' : ''}">
               <label>${esc(toTitleCaseFromSnake(k))}</label>
-              <input data-key="${k}" class="${String(sel.cells[k]||'').trim() ? '' : 'blank'}" value="${esc(sel.cells[k]||'')}" placeholder="—" />
+              <input data-key="${esc(k)}" class="${String(sel.cells[k]||'').trim() ? '' : 'blank'}" value="${esc(sel.cells[k]||'')}" placeholder="—" />
             </div>`).join('')}
         </div>
       `}
       <div class="focus-actions">
-        <button class="btn btn-ok btn-confirm" id="confirmBtn">
-          ${s === 'verified' ? 'Looks right' : 'Confirm'} <span class="kbd">&crarr;</span>
+        <button class="btn btn-ok btn-lg btn-confirm" id="confirmBtn">
+          ${s==='verified' ? 'Looks right' : 'Confirm'} <span class="kbd">↵</span>
         </button>
-        <button class="btn btn-lg" id="skipBtn">Skip</button>
-        <button class="btn btn-lg ${sel.flagged ? 'btn-flagged' : ''}" id="flagBtn">${sel.flagged ? 'Unflag' : 'Flag'}</button>
+        <button class="btn btn-lg" id="skipBtn">${ic('skip',13)} Skip</button>
+      </div>
+      <div class="focus-sub">
+        <button class="btn btn-sm ${sel.flagged ? 'btn-warn-soft' : 'btn-ghost'}" id="flagBtn">
+          ${ic('flag',13)} ${sel.flagged ? 'Unflag' : 'Flag for later'} <span class="kbd dark">F</span>
+        </button>
+        <button class="btn btn-sm btn-ghost" id="focusReread">${ic('scan',13)} Re-read box <span class="kbd dark">R</span></button>
+        ${sel.kind==='row' ? `<button class="btn btn-sm btn-bad-ghost" id="removeRowBtn">${ic('trash',13)} Remove row</button>` : ''}
       </div>
     </div>`;
 
   el('prevBtn').addEventListener('click', ()=>step(-1));
   el('nextBtn').addEventListener('click', ()=>step(1));
   el('confirmBtn').addEventListener('click', ()=>confirmItem(sel.id));
-  el('skipBtn').addEventListener('click', ()=>advance(sel.id));
-  el('flagBtn').addEventListener('click', ()=>{ sel.flagged = !sel.flagged; sel.confirmed = false; refresh(); });
+  el('skipBtn').addEventListener('click', ()=>advanceFrom(sel.id));
+  el('flagBtn').addEventListener('click', ()=>{ sel.flagged=!sel.flagged; sel.confirmed=false; refresh(); });
+  el('focusReread').addEventListener('click', rereadSelectedBox);
+  if(el('removeRowBtn')) el('removeRowBtn').addEventListener('click', ()=>removeItem(sel.id));
 
   const fi = el('focusInput');
   if(fi){
     fi.addEventListener('input', e=>{
       sel.value = e.target.value; sel.confirmed = false;
-      sel.conf = Math.max(sel.conf || 0, 0.9); sel.located = true;
-      renderMarkers(); renderProgress(); renderQueue(); updateJsonIfActive();
+      sel.conf = Math.max(sel.conf||0, 0.9); sel.located = true;
+      softRefresh();
     });
   }
   if(el('useSuggest')){
     el('useSuggest').addEventListener('click', ()=>{
       sel.value = sel.suggestion; sel.conf = 0.95; sel.confirmed = false; sel.located = true;
       refresh();
+      toast('Suggestion applied','ok');
     });
   }
   focusHost.querySelectorAll('.cells input').forEach(inp=>{
@@ -1056,60 +1283,71 @@ function renderFocus(){
       sel.cells[e.target.dataset.key] = e.target.value;
       sel.confirmed = false;
       e.target.className = e.target.value.trim() ? '' : 'blank';
-      renderMarkers(); renderProgress(); renderQueue(); updateJsonIfActive();
+      softRefresh();
     });
   });
+  if(pendingCellFocus){
+    pendingCellFocus = false;
+    const first = focusHost.querySelector('.cells input');
+    if(first) first.focus();
+  }
 }
 
 /* ---------- queue ---------- */
 function renderQueue(){
-  if(!items.length){ queueHost.innerHTML = ''; return; }
+  if(!items.length){ queueHost.innerHTML=''; return; }
   const sections = [{ title:'Fields', key:null, canAdd:false, list: items.filter(i=>i.kind==='field') }]
-    .concat(NESTED_GROUPS.map(g => ({ title:g.title, key:g.key, canAdd:true, list: rowsOf(g.key) })));
+    .concat(NESTED_GROUPS.map(g=>({ title:g.title, key:g.key, canAdd:true, list: rowsOf(g.key) })));
 
   queueHost.innerHTML = '';
   sections.forEach(sec=>{
     const shown = sec.list.filter(it=>{
       const s = statusOf(it);
-      if(view === 'all') return true;
-      if(view === 'done') return s === 'verified';
-      return s !== 'verified';
+      if(view==='all') return true;
+      if(view==='done') return s==='verified';
+      return s!=='verified';
     });
-    if(!shown.length && !sec.canAdd && view === 'done') return;
+    if(!shown.length && !sec.canAdd && view==='done') return;
 
-    const left = sec.list.filter(it => statusOf(it) !== 'verified').length;
+    const left = sec.list.filter(it=>statusOf(it)!=='verified').length;
     const wrap = document.createElement('div');
     wrap.className = 'qsection';
     wrap.innerHTML = `
       <div class="qhead">
         <div class="left">
           <span class="qtitle">${esc(sec.title)}</span>
-          <span class="qmeta">${sec.list.length === 0 ? 'none' : (left === 0 ? 'all checked' : left + ' left')}</span>
+          <span class="qmeta">${sec.list.length===0 ? 'none' : (left===0 ? 'all checked' : left+' left')}</span>
         </div>
-        ${sec.canAdd ? `<button class="btn btn-sm" data-add="${sec.key}" style="padding:4px 9px;font-size:11.5px;">+ Row</button>` : ''}
+        ${sec.canAdd ? `<button class="btn btn-sm btn-ghost" data-add="${esc(sec.key)}">${ic('plus',12)} Row</button>` : ''}
       </div>
       <div class="qitems"></div>`;
     const host = wrap.querySelector('.qitems');
 
     if(!shown.length){
-      const e2 = document.createElement('div');
-      e2.className = 'qempty';
-      e2.textContent = sec.list.length === 0
-        ? 'Nothing found for this group — add a row by hand.'
-        : 'Nothing in this view.';
-      host.appendChild(e2);
+      const empty = document.createElement('div');
+      empty.className = 'qempty';
+      empty.textContent = sec.list.length===0 ? 'Nothing found for this group — add a row by hand.' : 'Nothing in this view.';
+      host.appendChild(empty);
     } else {
       shown.forEach(it=>{
         const s = statusOf(it);
         const row = document.createElement('div');
-        row.className = 'qitem ' + s + (it.id === selectedId ? ' selected' : '');
+        row.className = 'qitem '+s+(it.id===selectedId ? ' selected' : '');
         row.innerHTML = `
-          <div class="body">
-            <div class="lbl">${esc(labelOf(it))}</div>
-            <div class="val">${esc(summaryOf(it))}</div>
+          <div class="qbody">
+            <div class="qlbl">${esc(labelOf(it))}</div>
+            <div class="qval">${esc(summaryOf(it))}</div>
           </div>
-          <span class="chip ${s}">${esc(chipOf(it))}</span>`;
-        row.addEventListener('click', ()=>{ selectedId = it.id; refresh(); });
+          <span class="qchip ${s}">${s==='verified' ? ic('check',10) : ''}${esc(chipOf(it))}</span>`;
+        row.addEventListener('click', ()=>select(it.id));
+        row.addEventListener('mouseenter', ()=>{
+          const b = markerLayer.querySelector(`[data-id="${it.id}"]`);
+          if(b) b.classList.add('peek');
+        });
+        row.addEventListener('mouseleave', ()=>{
+          const b = markerLayer.querySelector(`[data-id="${it.id}"]`);
+          if(b) b.classList.remove('peek');
+        });
         host.appendChild(row);
       });
     }
@@ -1124,51 +1362,38 @@ function renderQueue(){
         confirmed:false, flagged:false, located:false, conf:0, cells:{},
         box:{ x:0.06, y:0.5, w:0.45, h:0.04 }
       };
-      g.itemKeys.forEach(k => it.cells[k] = '');
+      g.itemKeys.forEach(k=>it.cells[k]='');
       items.push(it);
-      selectedId = it.id;
-      refresh();
+      pendingCellFocus = true;
+      select(it.id);
     });
   });
 }
-
-document.querySelectorAll('.view-btn').forEach(b=>{
+document.querySelectorAll('#views .seg-btn').forEach(b=>{
   b.addEventListener('click', ()=>{
     view = b.dataset.view;
-    document.querySelectorAll('.view-btn').forEach(x=>x.classList.toggle('active', x === b));
+    document.querySelectorAll('#views .seg-btn').forEach(x=>x.classList.toggle('active', x===b));
     renderQueue();
   });
 });
 
 /* ---------- progress ---------- */
 function renderProgress(){
-  const total = items.length, done = verifiedItems().length;
-  el('doneCount').textContent = done;
+  const c = statusCounts(), total = items.length;
+  el('progressFill').style.width = total ? (c.verified/total*100)+'%' : '0%';
+  el('doneCount').textContent = c.verified;
   el('totalCount').textContent = total;
-  el('progressFill').style.width = (total ? (done/total*100) : 0) + '%';
+  el('plOk').textContent = c.verified;
+  el('plWarn').textContent = c.review;
+  el('plBad').textContent = c.missing;
   el('cTodo').textContent = todoItems().length;
   el('cAll').textContent = total;
-  el('cDone').textContent = done;
-  const btn = el('submitBtn');
-  if(total && done === total){ btn.textContent = 'Submit record'; btn.className = 'btn btn-ok'; }
-  else if(total){ btn.textContent = 'Submit anyway'; btn.className = 'btn'; }
-}
-
-function refresh(){
-  renderMarkers();
-  renderFocus();
-  renderQueue();
-  renderProgress();
-  updateJsonIfActive();
-  const key = selectedId + '|' + closeup;
-  if(key !== focusKey){ focusKey = key; applyZoom(); scrollToSelection(); }
+  el('cDone').textContent = c.verified;
+  el('submitBtn').disabled = !total;
 }
 
 /* ---------- payloads ---------- */
-function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function round1(n){ return Math.round(n*10)/10; }
-function slugify(s){ return String(s||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,''); }
-
+// Full review record (status, confidence and box per item) — what the JSON panel shows and copies.
 function buildJson(){
   const out = {
     file: currentFileName,
@@ -1183,7 +1408,7 @@ function buildJson(){
     }))
   };
   NESTED_GROUPS.forEach(g=>{
-    out[g.key] = rowsOf(g.key).map((row, i)=>({
+    out[g.key] = rowsOf(g.key).map(row=>({
       label: labelOf(row),
       ...cellData(row, g),
       status: statusOf(row),
@@ -1212,48 +1437,112 @@ function buildSubmitJson(){
   });
   return out;
 }
-function updateJsonIfActive(){
-  const v = el('jsonView');
-  if(v.style.display !== 'none') v.textContent = JSON.stringify(buildJson(), null, 2);
+function highlightJson(raw){
+  const s = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return s.replace(/("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g,
+    (m, str, col, bool)=>{
+      if(str) return `<span class="${col ? 'j-key' : 'j-str'}">${str}</span>${col||''}`;
+      if(bool) return `<span class="j-bool">${bool}</span>`;
+      return `<span class="j-num">${m}</span>`;
+    });
 }
+function renderJson(){
+  el('jsonView').innerHTML = highlightJson(JSON.stringify(buildJson(), null, 2));
+  el('jsonCap').textContent = `Extracted record · ${items.length} items`;
+}
+function updateJsonIfActive(){ if(jsonActive) renderJson(); }
+function setJsonActive(on){
+  jsonActive = on;
+  el('queueZone').hidden = on || !items.length;
+  el('jsonZone').hidden = !on;
+  el('views').hidden = on;
+  el('jsonCap').hidden = !on;
+  el('jsonToggleBtn').classList.toggle('btn-dark', on);
+  if(on) renderJson();
+}
+el('jsonToggleBtn').addEventListener('click', ()=>setJsonActive(!jsonActive));
+el('copyJsonBtn').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText(JSON.stringify(buildJson(), null, 2)); toast('JSON copied to clipboard','ok'); }
+  catch(e){ toast('Copy failed','warn'); }
+});
+el('downloadJsonBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(buildJson(), null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (currentFileName.replace(/\.[^.]+$/,'') || 'record') + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('JSON downloaded','ok');
+});
 
-el('jsonToggleBtn').addEventListener('click', ()=>{
-  const v = el('jsonView');
-  const open = v.style.display !== 'none';
-  v.style.display = open ? 'none' : 'block';
-  el('jsonToggleBtn').textContent = open ? 'View JSON' : 'Hide JSON';
-  updateJsonIfActive();
-});
-el('copyJsonBtn').addEventListener('click', ()=>{
-  navigator.clipboard.writeText(JSON.stringify(buildJson(), null, 2)).then(()=>{
-    const t = el('copiedToast');
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'), 1400);
-  });
-});
-el('resetBtn').addEventListener('click', ()=>{
-  if(!baseline.length) return;
-  items = baseline.map(cloneItem);
-  selectedId = firstPendingId();
-  focusKey = null;
-  refresh();
-});
-
-function submitRecord(){
+/* ---------- submit ---------- */
+function openSubmit(){
+  const c = statusCounts();
+  openModal(`
+    <div class="modal-head">
+      <div><div class="modal-title">Submit record</div>
+      <div class="modal-sub">${items.length} items · ${c.verified} confirmed · ${c.review} need review · ${c.missing} not found</div></div>
+      <button class="btn btn-icon btn-ghost btn-sm" id="mClose" aria-label="Close">${ic('x',15)}</button>
+    </div>
+    <div class="modal-body"><pre class="modal-json">${highlightJson(JSON.stringify(buildSubmitJson(), null, 2))}</pre></div>
+    <div class="modal-foot">
+      <button class="btn" id="mCancel">Cancel</button>
+      <button class="btn btn-primary" id="mSubmit">${ic('send',14)} Submit record</button>
+    </div>`);
+  el('mClose').addEventListener('click', closeModal);
+  el('mCancel').addEventListener('click', closeModal);
+  el('mSubmit').addEventListener('click', doSubmit);
+}
+async function doSubmit(){
   const data = buildSubmitJson();
   console.log(data);
-  // Send data back to the Angular parent window that opened this workbench
-  if(window.opener){
-    window.opener.postMessage({ data: data }, '<YOUR REDIRECT URL>');
-  } else {
-    overlay(true, 'No parent window to submit to', 'the record was logged to the console instead');
-    setTimeout(()=>overlay(false), 2200);
+  let sent = false;
+  // Send data back to the Angular parent window that opened this workbench.
+  if(window.opener && FORM_URL){
+    try{
+      window.opener.postMessage({ type: FORM_TYPE, data: data }, FORM_URL);
+      sent = true;
+    }catch(e){ console.error(e); }
   }
+  closeModal();
+  if(sent){ toast('Record sent to the form','ok'); return; }
+  try{
+    await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    toast(window.opener ? 'Could not reach the form — JSON copied instead' : 'No form window to send to — JSON copied instead','warn');
+  }catch(e){ toast('Could not send or copy the record','warn'); }
 }
-el('submitBtn').addEventListener('click', submitRecord);
+el('submitBtn').addEventListener('click', openSubmit);
 
-window.addEventListener('resize', ()=>{ if(img){ applyZoom(); } });
+/* ---------- mobile panes ---------- */
+document.querySelectorAll('.ps-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.body.dataset.pane = b.dataset.pane;
+    document.querySelectorAll('.ps-btn').forEach(x=>x.classList.toggle('active', x===b));
+    if(b.dataset.pane==='doc'){ applyZoom(); scrollToSelection(); }
+  });
+});
+
+/* ---------- refresh orchestration ---------- */
+function refresh(){
+  renderMarkers();
+  renderFocus();
+  renderQueue();
+  renderProgress();
+  updateJsonIfActive();
+  followSelection();
+}
+function softRefresh(){
+  renderMarkers();
+  renderQueue();
+  renderProgress();
+  updateJsonIfActive();
+}
+
+window.addEventListener('resize', ()=>{ if(img) applyZoom(); });
+
+setLoaded(false);
+renderProgress();
+if(!Object.keys(REFERENCE_SCHEMA).length) toast('Could not load the schema — is the extraction API running?','warn');
 </script>
-
-
-</body></html>
+</body>
+</html>
