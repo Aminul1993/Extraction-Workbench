@@ -1,0 +1,11 @@
+# Direct dependencies. requirements.txt pins the whole tree; after editing this file run:
+#   uv pip compile requirements.in --universal -o requirements.txt
+flask>=3.1
+flask-cors>=6.0
+flask-limiter>=3.8
+python-dotenv>=1.0
+langchain-ollama==1.1.0
+# Only the converters the API registers (see extraction._build_converter).
+markitdown[pdf,docx,xlsx,pptx]==0.1.7
+# Production WSGI server (works on Windows and Linux).
+waitress>=3.0

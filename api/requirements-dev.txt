@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest>=8.3
+playwright>=1.48
+pip-audit>=2.7

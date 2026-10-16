@@ -1,0 +1,10 @@
+{
+  "name": "extraction-workbench",
+  "private": true,
+  "description": "Unit tests for the workbench's browser modules (no build step; nothing to install).",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test \"tests/unit/**/*.test.js\""
+  }
+}

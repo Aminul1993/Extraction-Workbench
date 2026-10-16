@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  api-and-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: api/requirements*.txt
+      - run: pip install -r api/requirements-dev.txt
+      - name: Audit pinned dependencies
+        run: pip-audit -r api/requirements.txt --no-deps --disable-pip
+      - run: python -m playwright install --with-deps chromium
+      - name: API and end-to-end tests
+        run: pytest
+
+  web-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
