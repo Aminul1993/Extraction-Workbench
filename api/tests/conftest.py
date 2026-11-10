@@ -1,10 +1,11 @@
 import io
 import os
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-os.environ.setdefault('OLLAMA_MODEL', 'test-model')  # before the app reads its settings
+os.environ.setdefault('GROQ_MODEL', 'test-model')  # before the app reads its settings
 
 import app as app_module  # noqa: E402
 import extraction  # noqa: E402
@@ -14,20 +15,22 @@ SAMPLE_PDF = (REPO / 'invoice_INV-2026-982.pdf').read_bytes()
 
 
 class StubModel:
-    """Stands in for ChatOllama: records each call and answers with `content` (or raises)."""
+    """Stands in for the Groq client: records each chat completion request and answers with
+    `content` (or raises)."""
 
     def __init__(self):
         self.content, self.raises, self.calls = '{}', None, []
+        self.chat = SimpleNamespace(completions=SimpleNamespace(create=self._create))
 
-    def invoke(self, messages, **kwargs):
-        self.calls.append((messages, kwargs))
+    def _create(self, **request):
+        self.calls.append(request)
         if self.raises:
             raise self.raises
-        return type('Result', (), {'content': self.content})()
+        return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=self.content))])
 
     @property
     def prompt(self):
-        return self.calls[-1][0][0]['content']
+        return self.calls[-1]['messages'][0]['content']
 
 
 @pytest.fixture(autouse=True)

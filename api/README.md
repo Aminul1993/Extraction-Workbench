@@ -1,6 +1,6 @@
 # Extraction API (Flask)
 
-This converts an uploaded document to Markdown with MarkItDown, asks an Ollama model to map it onto a reference schema, and returns the result as JSON. It also serves the workbench page, its static files and its schema, so the page's relative `/schema`, `/config` and `/extract` calls work without CORS.
+This converts an uploaded document to Markdown with MarkItDown, asks a Groq-hosted model to map it onto a reference schema, and returns the result as JSON. It also serves the workbench page, its static files and its schema, so the page's relative `/schema`, `/config` and `/extract` calls work without CORS.
 
 ## Run
 
@@ -9,7 +9,7 @@ cd api
 python -m venv .venv
 .venv/Scripts/activate        # Windows; use .venv/bin/activate elsewhere
 pip install -r requirements.txt
-cp .env.example .env          # then set OLLAMA_MODEL (e.g. gpt-oss:120b), OLLAMA_API_KEY and FORM_URL
+cp .env.example .env          # then set GROQ_MODEL (e.g. openai/gpt-oss-120b), GROQ_API_KEY and FORM_URL
 python app.py
 ```
 
@@ -21,7 +21,7 @@ Open <http://127.0.0.1:5000/> for the workbench.
 waitress-serve --host 127.0.0.1 --port 5000 --threads 8 --channel-timeout 180 app:app
 ```
 
-Keep `--channel-timeout` above `OLLAMA_TIMEOUT_SECONDS`, and put a TLS-terminating proxy in front. Behind a proxy, set `TRUST_PROXY_HOPS` so rate limits see client addresses.
+Keep `--channel-timeout` above `GROQ_TIMEOUT_SECONDS`, and put a TLS-terminating proxy in front. Behind a proxy, set `TRUST_PROXY_HOPS` so rate limits see client addresses.
 
 ## Endpoints
 
@@ -59,12 +59,12 @@ On failure the response is `{"request_status": 0, "msg": "..."}`, the same error
 |---|---|
 | 400 | Missing file, missing or invalid schema, a `ref_schema` the server doesn't accept, or a file type it doesn't read (ZIP archives, audio and others are refused) |
 | 401 | Missing, invalid or expired launch token (only when `WORKBENCH_LAUNCH_SECRET` is set) |
-| 413 | Upload larger than `MAX_UPLOAD_MB`, an Office file that unpacks past `MAX_UNPACKED_MB`, or document text longer than `MAX_DOCUMENT_CHARS` |
+| 413 | Upload larger than `MAX_UPLOAD_MB`, an Office file that unpacks past `MAX_UNPACKED_MB`, document text longer than `MAX_DOCUMENT_CHARS`, or a request over the Groq model's or account's token limit |
 | 422 | The file has no readable text and no `ocr_text` was sent |
-| 429 | More requests than `EXTRACT_RATE_LIMIT` allows |
-| 500 | `OLLAMA_MODEL` isn't set, or an unexpected error (details go to the log, not the response) |
+| 429 | More requests than `EXTRACT_RATE_LIMIT` allows, or Groq rate-limited the call |
+| 500 | `GROQ_MODEL` or `GROQ_API_KEY` isn't set, or an unexpected error (details go to the log, not the response) |
 | 502 | The model call failed or the model didn't return JSON |
-| 504 | The model didn't answer within `OLLAMA_TIMEOUT_SECONDS` |
+| 504 | The model didn't answer within `GROQ_TIMEOUT_SECONDS` |
 
 ### `GET /health`
 
@@ -74,11 +74,13 @@ Returns `{"status": "ok"}`.
 
 All settings are environment variables, read from `api/.env`. [`.env.example`](.env.example) lists them with their defaults. Beyond the model connection:
 
-- **Model:** `OLLAMA_TIMEOUT_SECONDS` (120), `OLLAMA_NUM_CTX` (for a self-hosted Ollama, whose default context can silently truncate long documents), and `OLLAMA_STRUCTURED_OUTPUT` (sends the schema as a JSON Schema `format`; off by default because some models ignore it).
+- **Model:** `GROQ_TIMEOUT_SECONDS` (120; failed calls aren't retried, so this bounds the whole model call), `GROQ_BASE_URL` (empty for Groq's own API), and `GROQ_STRUCTURED_OUTPUT` (sends the schema as a JSON Schema `response_format`; off by default because only some Groq models, such as `openai/gpt-oss-120b`, accept it).
 - **Limits:** `MAX_UPLOAD_MB` (20), `MAX_UNPACKED_MB` (50), `MAX_DOCUMENT_CHARS` (60,000).
 - **Logging:** `LOG_LEVEL` (INFO). Each extraction logs the file name, the document's length, and how long conversion and the model call took.
 
-Documents are sent to the configured Ollama server. With the default `OLLAMA_BASE_URL` that's ollama.com; point it at a self-hosted Ollama for documents that mustn't leave your network.
+Document text is sent to Groq's API (api.groq.com). Don't use it for documents that mustn't leave your network.
+
+On Groq's free tier, the per-minute token limit can be smaller than a long document. Such calls fail with a 413 or 429, so lower `MAX_DOCUMENT_CHARS` or use a paid tier.
 
 ## Access control
 
@@ -104,7 +106,7 @@ pip install -r api/requirements-dev.txt
 pytest api/tests        # API only; plain `pytest` also runs the browser tests
 ```
 
-The tests replace the model with a stub, so they need no Ollama access.
+The tests replace the model with a stub, so they need no Groq API key or network access.
 
 ## Dependencies
 

@@ -30,10 +30,15 @@ class StubModel:
     def reset(self):
         self.record, self.delay, self.prompts = SAMPLE_RECORD, 0.0, []
 
-    def invoke(self, messages, **kwargs):
+    @property
+    def chat(self):  # mirrors the Groq client's chat.completions.create
+        return SimpleNamespace(completions=SimpleNamespace(create=self._create))
+
+    def _create(self, messages, **request):
         self.prompts.append(messages[0]['content'])
         time.sleep(self.delay)
-        return type('Result', (), {'content': json.dumps(self.record)})()
+        message = SimpleNamespace(content=json.dumps(self.record))
+        return SimpleNamespace(choices=[SimpleNamespace(message=message)])
 
 
 PARENT_PAGE = b'''<!doctype html><meta charset="utf-8"><title>Parent form</title>

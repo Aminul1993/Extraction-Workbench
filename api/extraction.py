@@ -18,8 +18,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
 
-import httpx
-from langchain_ollama import ChatOllama
+import groq
+from groq import Groq
 from markitdown import PRIORITY_GENERIC_FILE_FORMAT, MarkItDown, StreamInfo
 from markitdown.converters import (
     DocxConverter,
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 MAX_DOCUMENT_CHARS = int(os.getenv('MAX_DOCUMENT_CHARS') or 60_000)
 MAX_UNPACKED_BYTES = int(os.getenv('MAX_UNPACKED_MB') or 50) * 1024 * 1024
-STRUCTURED_OUTPUT = os.getenv('OLLAMA_STRUCTURED_OUTPUT', '').lower() in ('1', 'true', 'yes')
+STRUCTURED_OUTPUT = os.getenv('GROQ_STRUCTURED_OUTPUT', '').lower() in ('1', 'true', 'yes')
 IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg'}
 
 
@@ -78,7 +78,7 @@ class SchemaSpec:
         return tuple(key for key in self.keys if key not in self.groups)
 
     def json_schema(self) -> dict[str, Any]:
-        """JSON Schema for Ollama structured outputs: every value is a string."""
+        """JSON Schema for Groq structured outputs: every value is a string."""
         text = {'type': 'string'}
         properties: dict[str, Any] = {}
         for key in self.keys:
@@ -88,10 +88,12 @@ class SchemaSpec:
                     'type': 'object',
                     'properties': {item_key: text for item_key in item_keys},
                     'required': list(item_keys),
+                    'additionalProperties': False,
                 }}
             else:
                 properties[key] = text
-        return {'type': 'object', 'properties': properties, 'required': list(self.keys)}
+        return {'type': 'object', 'properties': properties, 'required': list(self.keys),
+                'additionalProperties': False}
 
     def normalize(self, record: dict[str, Any]) -> dict[str, Any]:
         """Hold the model's output to the documented contract: strings, and lists of row objects."""
@@ -118,20 +120,18 @@ def _as_text(value: Any) -> str:
 
 
 @lru_cache(maxsize=1)
-def get_ai_model() -> ChatOllama:
-    """Built once per process: ChatOllama sets up two HTTP clients, ~1.6 s on every request before."""
-    model = os.getenv('OLLAMA_MODEL')
-    if not model:
-        raise ExtractionError('No model configured - set OLLAMA_MODEL', 500)
-    num_ctx = os.getenv('OLLAMA_NUM_CTX')
-    return ChatOllama(
-        base_url=os.getenv('OLLAMA_BASE_URL', 'https://ollama.com'),
-        model=model,
-        validate_model_on_init=False,
-        temperature=0,
-        num_ctx=int(num_ctx) if num_ctx else None,
-        # The ollama client has no timeout by default, so a stalled call held the request open forever.
-        client_kwargs={'timeout': float(os.getenv('OLLAMA_TIMEOUT_SECONDS') or 120)},
+def get_ai_model() -> Groq:
+    """Built once per process so every request reuses one HTTP connection pool."""
+    if not os.getenv('GROQ_MODEL'):
+        raise ExtractionError('No model configured - set GROQ_MODEL', 500)
+    if not os.getenv('GROQ_API_KEY'):
+        raise ExtractionError('No API key configured - set GROQ_API_KEY', 500)
+    return Groq(
+        base_url=os.getenv('GROQ_BASE_URL') or None,  # None: the SDK's default, api.groq.com
+        timeout=float(os.getenv('GROQ_TIMEOUT_SECONDS') or 120),
+        # The SDK would otherwise retry twice, each with the full timeout, outlasting the
+        # WSGI channel timeout and the page's own wait.
+        max_retries=0,
     )
 
 
@@ -265,20 +265,35 @@ def extraction_workflow(file_bytes: bytes, filename: str, content_type: str | No
             413,
         )
 
-    prompt = _build_extraction_prompt(document_markdown, spec)
+    request: dict[str, Any] = {
+        'model': os.environ['GROQ_MODEL'],
+        'messages': [{'role': 'user', 'content': _build_extraction_prompt(document_markdown, spec)}],
+        'temperature': 0,
+    }
+    if STRUCTURED_OUTPUT:
+        request['response_format'] = {
+            'type': 'json_schema',
+            'json_schema': {'name': 'extraction', 'schema': spec.json_schema()},
+        }
     converted = time.perf_counter()
     try:
-        result = ai_model.invoke(
-            [{'role': 'user', 'content': prompt}],
-            format=spec.json_schema() if STRUCTURED_OUTPUT else None,
-        )
-    except httpx.TimeoutException as e:
+        result = ai_model.chat.completions.create(**request)
+    except groq.APITimeoutError as e:
         logger.warning('Model call timed out: %s', e)
         raise ExtractionError('The extraction model timed out', 504) from e
+    except groq.RateLimitError as e:
+        logger.warning('Model call rate-limited: %s', e)
+        raise ExtractionError('The extraction model is rate-limited - try again shortly', 429) from e
+    except groq.APIStatusError as e:
+        if e.status_code == 413:  # the request is over the model's (or the account's) token limit
+            logger.warning('Model call too large: %s', e)
+            raise ExtractionError('Document is too long for the extraction model', 413) from e
+        logger.exception('Model call failed')
+        raise ExtractionError('The extraction model could not be reached', 502) from e
     except Exception as e:
         logger.exception('Model call failed')
         raise ExtractionError('The extraction model could not be reached', 502) from e
 
     logger.info('Extracted %r: %d characters, converted in %.2fs, model call %.2fs',
                 filename, len(document_markdown), converted - started, time.perf_counter() - converted)
-    return spec.normalize(_parse_extraction_response(result.content))
+    return spec.normalize(_parse_extraction_response(result.choices[0].message.content))

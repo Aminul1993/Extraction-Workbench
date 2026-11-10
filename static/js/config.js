@@ -5,5 +5,5 @@ export const SCHEMA_URL = '/schema';
 export const CONFIG_URL = '/config';
 export const AI_URL = '/extract';
 
-// A little longer than the API's own model timeout (OLLAMA_TIMEOUT_SECONDS, 120 s by default).
+// A little longer than the API's own model timeout (GROQ_TIMEOUT_SECONDS, 120 s by default).
 export const EXTRACT_TIMEOUT_MS = 150_000;

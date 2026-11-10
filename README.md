@@ -17,7 +17,7 @@ cd api
 python -m venv .venv
 .venv/Scripts/activate        # Windows; use .venv/bin/activate elsewhere
 pip install -r requirements.txt
-cp .env.example .env          # set OLLAMA_MODEL, OLLAMA_API_KEY and FORM_URL
+cp .env.example .env          # set GROQ_MODEL, GROQ_API_KEY and FORM_URL
 python app.py
 ```
 
@@ -31,7 +31,7 @@ See [`api/README.md`](api/README.md) for the API's endpoints and settings.
 
 1. **Upload** an image (JPG/PNG) or PDF (first page only) of a document.
 2. The page runs **OCR** locally in the browser (Tesseract.js) to read text and locate it on the page.
-3. At the same time, the file is sent once to the **extraction API** (`POST /extract`). The API converts it to text with MarkItDown, then asks an Ollama model to map that text onto the reference schema (for example invoice number, vendor address, line items). An image has no text layer, so for images the page sends its OCR text along and the API maps that instead.
+3. At the same time, the file is sent once to the **extraction API** (`POST /extract`). The API converts it to text with MarkItDown, then asks a model hosted on Groq to map that text onto the reference schema (for example invoice number, vendor address, line items). An image has no text layer, so for images the page sends its OCR text along and the API maps that instead.
 4. Each extracted field is shown as a **marker box** on the document image, color-coded by status. Next to it, a **review rail** lets you confirm, edit, flag or skip each value.
 5. When every field is checked (or you submit early), the JSON record is **posted back to the parent window** (`window.opener`) that launched the workbench.
 
@@ -154,7 +154,7 @@ Browser (loaded from CDNs):
 - [Tesseract.js](https://cdn.jsdelivr.net/npm/tesseract.js/) 5.1.1: in-browser OCR, used for the initial text and line detection and for "Re-read box". Its script is pinned with a Subresource Integrity hash.
 - Google Fonts: Plus Jakarta Sans (UI) and IBM Plex Mono (data and values).
 
-API: Flask, MarkItDown, langchain-ollama, Flask-Limiter and Waitress. [`api/requirements.in`](api/requirements.in) lists them, and [`api/requirements.txt`](api/requirements.txt) pins the full tree.
+API: Flask, MarkItDown, the Groq Python SDK, Flask-Limiter and Waitress. [`api/requirements.in`](api/requirements.in) lists them, and [`api/requirements.txt`](api/requirements.txt) pins the full tree.
 
 ## Fallbacks and limits
 

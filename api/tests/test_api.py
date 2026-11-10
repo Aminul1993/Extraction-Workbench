@@ -4,6 +4,7 @@ import time
 import zipfile
 from pathlib import Path
 
+import groq
 import httpx
 import pytest
 
@@ -49,14 +50,19 @@ def test_prompt_lists_every_key_and_carries_the_document(model, post):
     post()
     assert 'exactly these keys: invoice_no, invoice_date' in model.prompt
     assert 'INV-2026-982' in model.prompt
-    assert model.calls[-1][1]['format'] is None
+    assert model.calls[-1]['model'] == 'test-model'
+    assert model.calls[-1]['temperature'] == 0
+    assert 'response_format' not in model.calls[-1]
 
 
 def test_structured_output_sends_a_json_schema(model, post, monkeypatch):
     monkeypatch.setattr(extraction, 'STRUCTURED_OUTPUT', True)
     post()
-    schema = model.calls[-1][1]['format']
+    response_format = model.calls[-1]['response_format']
+    assert response_format['type'] == 'json_schema'
+    schema = response_format['json_schema']['schema']
     assert schema['properties']['construction_services']['type'] == 'array'
+    assert schema['additionalProperties'] is False
     assert 'invoice_no' in schema['required']
 
 
@@ -134,9 +140,28 @@ def test_model_failures_do_not_leak_details(model, post):
     assert 'token' not in r.get_data(as_text=True)
 
 
+GROQ_REQUEST = httpx.Request('POST', 'https://api.groq.com/openai/v1/chat/completions')
+
+
+def groq_status_error(error_class, status):
+    return error_class('error', response=httpx.Response(status, request=GROQ_REQUEST), body=None)
+
+
 def test_model_timeouts_are_a_504(model, post):
-    model.raises = httpx.ReadTimeout('timed out')
+    model.raises = groq.APITimeoutError(request=GROQ_REQUEST)
     assert post().status_code == 504
+
+
+@pytest.mark.parametrize('error, status', [
+    (groq_status_error(groq.RateLimitError, 429), 429),
+    (groq_status_error(groq.APIStatusError, 413), 413),
+    (groq_status_error(groq.InternalServerError, 503), 502),
+])
+def test_model_status_errors_are_mapped(model, post, error, status):
+    model.raises = error
+    r = post()
+    assert r.status_code == status
+    assert r.get_json()['request_status'] == 0
 
 
 def test_non_json_model_output_is_a_502_without_echo(model, post):
@@ -158,23 +183,32 @@ def test_unexpected_errors_are_generic(post, monkeypatch):
 # ---------- model client ----------
 
 def test_model_client_is_built_once_with_a_timeout(monkeypatch):
-    monkeypatch.setenv('OLLAMA_MODEL', 'some-model')
-    monkeypatch.setenv('OLLAMA_TIMEOUT_SECONDS', '45')
+    monkeypatch.setenv('GROQ_MODEL', 'some-model')
+    monkeypatch.setenv('GROQ_API_KEY', 'test-key')
+    monkeypatch.setenv('GROQ_TIMEOUT_SECONDS', '45')
     extraction.get_ai_model.cache_clear()
     try:
         first = extraction.get_ai_model()
         assert extraction.get_ai_model() is first
-        assert first.client_kwargs == {'timeout': 45.0}
+        assert first.timeout == 45.0
+        assert first.max_retries == 0
     finally:
         extraction.get_ai_model.cache_clear()
 
 
-def test_missing_model_setting_is_reported(monkeypatch):
-    monkeypatch.delenv('OLLAMA_MODEL')
+@pytest.mark.parametrize('missing', ['GROQ_MODEL', 'GROQ_API_KEY'])
+def test_missing_model_settings_are_reported(monkeypatch, missing):
+    monkeypatch.setenv('GROQ_MODEL', 'some-model')
+    monkeypatch.setenv('GROQ_API_KEY', 'test-key')
+    monkeypatch.delenv(missing)
     extraction.get_ai_model.cache_clear()
-    with pytest.raises(extraction.ExtractionError) as error:
-        extraction.get_ai_model()
-    assert error.value.status_code == 500
+    try:
+        with pytest.raises(extraction.ExtractionError) as error:
+            extraction.get_ai_model()
+        assert error.value.status_code == 500
+        assert missing in error.value.msg
+    finally:
+        extraction.get_ai_model.cache_clear()
 
 
 # ---------- page, config and headers ----------
